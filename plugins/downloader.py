@@ -1,8 +1,10 @@
 import os
 import re
+import json
 import time
 import asyncio
 import logging
+import subprocess
 from urllib.parse import urlparse, unquote
 
 import aiohttp
@@ -20,16 +22,14 @@ from database.database import save_download
 
 logger = logging.getLogger(__name__)
 
-
 # ============================================================
-# Active Downloads
+# ACTIVE DOWNLOADS
 # ============================================================
 
 active_downloads = {}
 
-
 # ============================================================
-# Constants
+# SETTINGS
 # ============================================================
 
 CHUNK_SIZE = 1024 * 1024  # 1 MB
@@ -37,12 +37,12 @@ PROGRESS_INTERVAL = 3
 
 
 # ============================================================
-# Format Bytes
+# FORMAT BYTES
 # ============================================================
 
 def format_bytes(size: int) -> str:
 
-    if size <= 0:
+    if size is None or size <= 0:
         return "0 B"
 
     units = [
@@ -64,41 +64,50 @@ def format_bytes(size: int) -> str:
 
 
 # ============================================================
-# Format Time
+# FORMAT TIME
 # ============================================================
 
 def format_time(seconds: float) -> str:
 
-    if seconds <= 0:
-        return "0s"
+    if seconds is None or seconds <= 0:
+        return "00:00"
 
     seconds = int(seconds)
 
-    days, seconds = divmod(seconds, 86400)
-    hours, seconds = divmod(seconds, 3600)
-    minutes, seconds = divmod(seconds, 60)
+    hours, remainder = divmod(
+        seconds,
+        3600,
+    )
 
-    if days:
-        return f"{days}d {hours}h"
+    minutes, seconds = divmod(
+        remainder,
+        60,
+    )
 
-    if hours:
-        return f"{hours}h {minutes}m"
+    if hours > 0:
+        return (
+            f"{hours:02d}:"
+            f"{minutes:02d}:"
+            f"{seconds:02d}"
+        )
 
-    if minutes:
-        return f"{minutes}m {seconds}s"
-
-    return f"{seconds}s"
+    return (
+        f"{minutes:02d}:"
+        f"{seconds:02d}"
+    )
 
 
 # ============================================================
-# Safe Filename
+# SAFE FILENAME
 # ============================================================
 
 def safe_filename(filename: str) -> str:
 
     filename = unquote(filename)
 
-    filename = os.path.basename(filename)
+    filename = os.path.basename(
+        filename
+    )
 
     filename = re.sub(
         r'[<>:"/\\|?*\x00-\x1F]',
@@ -115,7 +124,7 @@ def safe_filename(filename: str) -> str:
 
 
 # ============================================================
-# Filename From URL
+# FILENAME FROM URL
 # ============================================================
 
 def filename_from_url(url: str) -> str:
@@ -129,7 +138,9 @@ def filename_from_url(url: str) -> str:
         )
 
         if filename:
-            return safe_filename(filename)
+            return safe_filename(
+                filename
+            )
 
     except Exception:
         pass
@@ -138,10 +149,43 @@ def filename_from_url(url: str) -> str:
 
 
 # ============================================================
-# Progress Text
+# PROGRESS BAR
 # ============================================================
 
-def make_progress_text(
+def progress_bar(
+    current: int,
+    total: int,
+    length: int = 12,
+) -> str:
+
+    if total <= 0:
+        return "○" * length
+
+    percentage = current / total
+
+    filled = int(
+        percentage * length
+    )
+
+    filled = max(
+        0,
+        min(
+            filled,
+            length,
+        ),
+    )
+
+    return (
+        "●" * filled
+        + "○" * (length - filled)
+    )
+
+
+# ============================================================
+# DOWNLOAD PROGRESS TEXT
+# ============================================================
+
+def make_download_progress(
     current: int,
     total: int,
     start_time: float,
@@ -168,45 +212,98 @@ def make_progress_text(
             else 0
         )
 
-        bar_length = 12
-
-        filled = int(
-            bar_length
-            * current
-            / total
-        )
-
-        filled = min(
-            filled,
-            bar_length
-        )
-
-        bar = (
-            "█" * filled
-            + "░" * (bar_length - filled)
+        bar = progress_bar(
+            current,
+            total,
+            12,
         )
 
         return (
-            "📥 **Downloading...**\n\n"
+            "📥 **Mode:** `Download`\n\n"
             f"`{bar}` **{percentage:.1f}%**\n\n"
-            f"📦 `{format_bytes(current)}` / "
+            f"📦 **File Size:** "
+            f"`{format_bytes(current)}` / "
             f"`{format_bytes(total)}`\n"
-            f"⚡ `{format_bytes(speed)}/s`\n"
-            f"⏱ `{format_time(eta)}`"
+            f"🚀 **Speed:** "
+            f"`{format_bytes(speed)}/s`\n"
+            f"⏳ **ETA:** "
+            f"`{format_time(eta)}`"
         )
 
     return (
-        "📥 **Downloading...**\n\n"
-        f"📦 `{format_bytes(current)}`\n"
-        f"⚡ `{format_bytes(speed)}/s`"
+        "📥 **Mode:** `Download`\n\n"
+        f"📦 **File Size:** "
+        f"`{format_bytes(current)}`\n"
+        f"🚀 **Speed:** "
+        f"`{format_bytes(speed)}/s`\n"
+        "⏳ **ETA:** `Calculating...`"
     )
 
 
 # ============================================================
-# Update Progress
+# UPLOAD PROGRESS TEXT
 # ============================================================
 
-async def update_progress(
+def make_upload_progress(
+    current: int,
+    total: int,
+    start_time: float,
+) -> str:
+
+    elapsed = time.time() - start_time
+
+    if elapsed <= 0:
+        elapsed = 0.1
+
+    speed = current / elapsed
+
+    if total > 0:
+
+        percentage = (
+            current / total
+        ) * 100
+
+        remaining = total - current
+
+        eta = (
+            remaining / speed
+            if speed > 0
+            else 0
+        )
+
+        bar = progress_bar(
+            current,
+            total,
+            12,
+        )
+
+        return (
+            "📤 **Mode:** `Upload`\n\n"
+            f"`{bar}` **{percentage:.1f}%**\n\n"
+            f"📦 **File Size:** "
+            f"`{format_bytes(current)}` / "
+            f"`{format_bytes(total)}`\n"
+            f"🚀 **Speed:** "
+            f"`{format_bytes(speed)}/s`\n"
+            f"⏳ **ETA:** "
+            f"`{format_time(eta)}`"
+        )
+
+    return (
+        "📤 **Mode:** `Upload`\n\n"
+        f"📦 **File Size:** "
+        f"`{format_bytes(current)}`\n"
+        f"🚀 **Speed:** "
+        f"`{format_bytes(speed)}/s`\n"
+        "⏳ **ETA:** `Calculating...`"
+    )
+
+
+# ============================================================
+# UPDATE DOWNLOAD PROGRESS
+# ============================================================
+
+async def update_download_progress(
     message: Message,
     current: int,
     total: int,
@@ -215,20 +312,208 @@ async def update_progress(
 
     try:
 
-        text = make_progress_text(
-            current=current,
-            total=total,
-            start_time=start_time,
+        text = make_download_progress(
+            current,
+            total,
+            start_time,
         )
 
-        await message.edit_text(text)
+        await message.edit_text(
+            text
+        )
 
     except Exception:
         pass
 
 
 # ============================================================
-# Download File
+# UPLOAD PROGRESS CALLBACK
+# ============================================================
+
+async def upload_progress_callback(
+    current: int,
+    total: int,
+    message: Message,
+    start_time: float,
+    state: dict,
+):
+
+    now = time.time()
+
+    # Avoid editing Telegram message too frequently.
+    if (
+        now - state.get(
+            "last_update",
+            0,
+        )
+        < PROGRESS_INTERVAL
+    ):
+        return
+
+    state["last_update"] = now
+
+    try:
+
+        text = make_upload_progress(
+            current,
+            total,
+            start_time,
+        )
+
+        await message.edit_text(
+            text
+        )
+
+    except Exception:
+        pass
+
+
+# ============================================================
+# VIDEO METADATA
+# ============================================================
+
+def get_video_metadata(filepath: str):
+
+    try:
+
+        result = subprocess.run(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-show_entries",
+                "stream=width,height,codec_type",
+                "-of",
+                "json",
+                filepath,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=30,
+        )
+
+        if result.returncode != 0:
+
+            logger.warning(
+                "ffprobe failed: %s",
+                result.stderr[:500],
+            )
+
+            return 0, 0, 0
+
+        data = json.loads(
+            result.stdout
+        )
+
+        duration = 0
+        width = 0
+        height = 0
+
+        # ----------------------------------------------------
+        # DURATION
+        # ----------------------------------------------------
+
+        format_data = data.get(
+            "format",
+            {},
+        )
+
+        duration_value = format_data.get(
+            "duration"
+        )
+
+        if duration_value:
+
+            try:
+
+                duration = int(
+                    float(
+                        duration_value
+                    )
+                )
+
+            except (
+                ValueError,
+                TypeError,
+            ):
+
+                duration = 0
+
+        # ----------------------------------------------------
+        # WIDTH / HEIGHT
+        # ----------------------------------------------------
+
+        for stream in data.get(
+            "streams",
+            [],
+        ):
+
+            if stream.get(
+                "codec_type"
+            ) == "video":
+
+                try:
+
+                    width = int(
+                        stream.get(
+                            "width"
+                        ) or 0
+                    )
+
+                except Exception:
+
+                    width = 0
+
+                try:
+
+                    height = int(
+                        stream.get(
+                            "height"
+                        ) or 0
+                    )
+
+                except Exception:
+
+                    height = 0
+
+                break
+
+        logger.info(
+            "Video metadata: "
+            "duration=%s width=%s height=%s",
+            duration,
+            width,
+            height,
+        )
+
+        return (
+            duration,
+            width,
+            height,
+        )
+
+    except FileNotFoundError:
+
+        logger.error(
+            "ffprobe is not installed."
+        )
+
+        return 0, 0, 0
+
+    except Exception:
+
+        logger.exception(
+            "Failed to read video metadata."
+        )
+
+        return 0, 0, 0
+
+
+# ============================================================
+# DOWNLOAD FILE
 # ============================================================
 
 async def download_file(
@@ -261,6 +546,11 @@ async def download_file(
     start_time = time.time()
     last_update = 0
 
+    os.makedirs(
+        os.path.dirname(filepath),
+        exist_ok=True,
+    )
+
     async with aiohttp.ClientSession(
         timeout=timeout,
         headers=headers,
@@ -278,7 +568,7 @@ async def download_file(
                 )
 
             # ------------------------------------------------
-            # Content Length
+            # CONTENT LENGTH
             # ------------------------------------------------
 
             content_length = response.headers.get(
@@ -288,24 +578,31 @@ async def download_file(
             if content_length:
 
                 try:
-                    total_size = int(content_length)
 
-                except (ValueError, TypeError):
+                    total_size = int(
+                        content_length
+                    )
+
+                except (
+                    ValueError,
+                    TypeError,
+                ):
+
                     total_size = 0
 
             # ------------------------------------------------
-            # Check 4 GB limit before download
+            # CHECK 4 GB LIMIT
             # ------------------------------------------------
 
             if total_size > MAX_FILE_SIZE:
 
                 raise RuntimeError(
-                    "The file is larger than the "
-                    "4 GB download limit."
+                    "The file is larger than "
+                    "the 4 GB limit."
                 )
 
             # ------------------------------------------------
-            # Download
+            # STREAM TO DISK
             # ------------------------------------------------
 
             with open(
@@ -317,7 +614,10 @@ async def download_file(
                     CHUNK_SIZE
                 ):
 
-                    # Check cancellation
+                    # ----------------------------------------
+                    # CANCEL CHECK
+                    # ----------------------------------------
+
                     if user_id not in active_downloads:
 
                         raise asyncio.CancelledError
@@ -327,22 +627,24 @@ async def download_file(
 
                     downloaded += len(chunk)
 
-                    # ------------------------------------------------
-                    # Check actual downloaded size
-                    # ------------------------------------------------
+                    # ----------------------------------------
+                    # 4 GB CHECK
+                    # ----------------------------------------
 
                     if downloaded > MAX_FILE_SIZE:
 
                         raise RuntimeError(
-                            "The file exceeded the "
-                            "4 GB download limit."
+                            "The file exceeded "
+                            "the 4 GB limit."
                         )
 
-                    output.write(chunk)
+                    output.write(
+                        chunk
+                    )
 
-                    # ------------------------------------------------
-                    # Progress update
-                    # ------------------------------------------------
+                    # ----------------------------------------
+                    # PROGRESS
+                    # ----------------------------------------
 
                     now = time.time()
 
@@ -351,11 +653,11 @@ async def download_file(
                         >= PROGRESS_INTERVAL
                     ):
 
-                        await update_progress(
-                            message=status_message,
-                            current=downloaded,
-                            total=total_size,
-                            start_time=start_time,
+                        await update_download_progress(
+                            status_message,
+                            downloaded,
+                            total_size,
+                            start_time,
                         )
 
                         last_update = now
@@ -364,7 +666,7 @@ async def download_file(
 
 
 # ============================================================
-# Start Download
+# START DOWNLOAD
 # ============================================================
 
 async def start_download(
@@ -376,7 +678,7 @@ async def start_download(
 ):
 
     # --------------------------------------------------------
-    # Prevent multiple downloads
+    # ALREADY DOWNLOADING
     # --------------------------------------------------------
 
     if user_id in active_downloads:
@@ -385,7 +687,7 @@ async def start_download(
 
             await message.edit_text(
                 "⚠️ **You already have a download running.**\n\n"
-                "Use `/cancel` to stop it first."
+                "Use `/cancel` to stop it."
             )
 
         except Exception:
@@ -394,7 +696,7 @@ async def start_download(
         return
 
     # --------------------------------------------------------
-    # Validate mode
+    # VALIDATE MODE
     # --------------------------------------------------------
 
     if mode not in (
@@ -405,7 +707,7 @@ async def start_download(
         try:
 
             await message.edit_text(
-                "❌ **Invalid file type.**"
+                "❌ **Invalid mode.**"
             )
 
         except Exception:
@@ -414,10 +716,12 @@ async def start_download(
         return
 
     # --------------------------------------------------------
-    # Create filename
+    # FILENAME
     # --------------------------------------------------------
 
-    filename = filename_from_url(url)
+    filename = filename_from_url(
+        url
+    )
 
     timestamp = int(
         time.time()
@@ -429,7 +733,7 @@ async def start_download(
     )
 
     # --------------------------------------------------------
-    # Register active download
+    # REGISTER DOWNLOAD
     # --------------------------------------------------------
 
     active_downloads[user_id] = {
@@ -442,7 +746,7 @@ async def start_download(
     try:
 
         # ----------------------------------------------------
-        # Status
+        # CHECKING
         # ----------------------------------------------------
 
         try:
@@ -455,10 +759,10 @@ async def start_download(
             pass
 
         # ----------------------------------------------------
-        # Download
+        # DOWNLOAD
         # ----------------------------------------------------
 
-        downloaded = await download_file(
+        await download_file(
             url=url,
             filepath=filepath,
             status_message=message,
@@ -466,7 +770,7 @@ async def start_download(
         )
 
         # ----------------------------------------------------
-        # Make sure file exists
+        # FILE CHECK
         # ----------------------------------------------------
 
         if not os.path.exists(filepath):
@@ -493,52 +797,113 @@ async def start_download(
             )
 
         # ----------------------------------------------------
-        # Upload status
+        # UPLOAD STATE
+        # ----------------------------------------------------
+
+        upload_start = time.time()
+
+        upload_state = {
+            "last_update": 0,
+        }
+
+        # ----------------------------------------------------
+        # UPLOAD STATUS
         # ----------------------------------------------------
 
         try:
 
             await message.edit_text(
-                "📤 **Uploading to Telegram...**\n\n"
-                f"📦 `{format_bytes(actual_size)}`"
+                "📤 **Mode:** `Upload`\n\n"
+                "📊 **Preparing file...**\n"
+                f"📦 **File Size:** "
+                f"`{format_bytes(actual_size)}`\n"
+                "🚀 **Speed:** `Calculating...`\n"
+                "⏳ **ETA:** `Calculating...`"
             )
 
         except Exception:
             pass
 
         # ----------------------------------------------------
-        # Caption
+        # CAPTION
         # ----------------------------------------------------
 
         caption = DEFAULT_CAPTION
 
         # ----------------------------------------------------
-        # Upload as Video
+        # VIDEO
         # ----------------------------------------------------
 
         if mode == "video":
+
+            (
+                duration,
+                width,
+                height,
+            ) = get_video_metadata(
+                filepath
+            )
+
+            logger.info(
+                "Uploading video: "
+                "duration=%s width=%s height=%s",
+                duration,
+                width,
+                height,
+            )
+
+            async def video_progress(
+                current,
+                total,
+            ):
+
+                await upload_progress_callback(
+                    current,
+                    total,
+                    message,
+                    upload_start,
+                    upload_state,
+                )
 
             await client.send_video(
                 chat_id=user_id,
                 video=filepath,
                 caption=caption,
+                duration=duration,
+                width=width,
+                height=height,
                 supports_streaming=True,
+                progress=video_progress,
             )
 
         # ----------------------------------------------------
-        # Upload as Document
+        # DOCUMENT
         # ----------------------------------------------------
 
         elif mode == "document":
+
+            async def document_progress(
+                current,
+                total,
+            ):
+
+                await upload_progress_callback(
+                    current,
+                    total,
+                    message,
+                    upload_start,
+                    upload_state,
+                )
 
             await client.send_document(
                 chat_id=user_id,
                 document=filepath,
                 caption=caption,
+                progress=document_progress,
             )
 
         # ----------------------------------------------------
-        # Save history
+        # DATABASE
         # ----------------------------------------------------
 
         try:
@@ -558,21 +923,21 @@ async def start_download(
             )
 
         # ----------------------------------------------------
-        # Finished
+        # COMPLETED
         # ----------------------------------------------------
 
         try:
 
             await message.edit_text(
-                "✅ **Download completed!**\n\n"
-                f"📦 `{format_bytes(actual_size)}`\n"
-                f"📁 `{mode}`"
+                "✅ **Completed Successfully!**\n\n"
+                f"📦 **File Size:** "
+                f"`{format_bytes(actual_size)}`\n"
+                f"📁 **Mode:** `{mode.title()}`"
             )
 
         except Exception:
             pass
 
-        # Give Telegram a moment before deleting status
         await asyncio.sleep(2)
 
         try:
@@ -583,7 +948,7 @@ async def start_download(
     except asyncio.CancelledError:
 
         logger.info(
-            "Download cancelled by user: %s",
+            "Download cancelled: %s",
             user_id,
         )
 
@@ -596,34 +961,40 @@ async def start_download(
         except Exception:
             pass
 
-    except aiohttp.ClientError as e:
+    except aiohttp.ClientError as error:
 
         logger.error(
             "HTTP download error: %s",
-            e,
+            error,
         )
 
         try:
 
             await message.edit_text(
                 "❌ **Download failed.**\n\n"
-                "Could not connect to the download server."
+                "Unable to connect to the server."
             )
 
         except Exception:
             pass
 
-    except Exception as e:
+    except Exception as error:
 
         logger.exception(
             "Download failed for user %s",
             user_id,
         )
 
-        error_text = str(e)
+        error_text = str(
+            error
+        )
 
         if len(error_text) > 800:
-            error_text = error_text[:800] + "..."
+
+            error_text = (
+                error_text[:800]
+                + "..."
+            )
 
         try:
 
@@ -638,7 +1009,7 @@ async def start_download(
     finally:
 
         # ----------------------------------------------------
-        # Remove active task
+        # REMOVE ACTIVE DOWNLOAD
         # ----------------------------------------------------
 
         active_downloads.pop(
@@ -647,7 +1018,10 @@ async def start_download(
         )
 
         # ----------------------------------------------------
-        # Delete temporary file
+        # DELETE TEMP FILE
+        #
+        # IMPORTANT FOR KOYEB:
+        # Don't keep large files on the 500 MB disk.
         # ----------------------------------------------------
 
         if os.path.exists(filepath):
@@ -670,7 +1044,7 @@ async def start_download(
 
 
 # ============================================================
-# Cancel Download
+# CANCEL DOWNLOAD
 # ============================================================
 
 async def cancel_download(
@@ -682,12 +1056,10 @@ async def cancel_download(
     )
 
     if not download:
-
         return False
 
     # Removing the user from active_downloads causes
-    # download_file() to raise asyncio.CancelledError
-    # on its next chunk.
+    # download_file() to stop on the next chunk.
 
     active_downloads.pop(
         user_id,
@@ -698,20 +1070,21 @@ async def cancel_download(
         "filepath"
     )
 
-    # --------------------------------------------------------
-    # Try immediate cleanup
-    # --------------------------------------------------------
-
     if filepath and os.path.exists(filepath):
 
         try:
 
             os.remove(filepath)
 
+            logger.info(
+                "Deleted cancelled file: %s",
+                filepath,
+            )
+
         except Exception:
 
             logger.exception(
-                "Failed to remove cancelled file."
+                "Failed to delete cancelled file."
             )
 
     return True
