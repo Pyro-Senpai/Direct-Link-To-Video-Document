@@ -4,145 +4,187 @@ import os
 
 from aiohttp import web
 from pyrogram import Client
+from pyrogram.errors import FloodWait
 
 from config import API_ID, API_HASH, BOT_TOKEN
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+level=logging.INFO,
+format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger(name)
 
 class Bot(Client):
 
-    def __init__(self):
+def __init__(self):
 
-        super().__init__(
-            "link_downloader_bot",
-            api_id=API_ID,
-            api_hash=API_HASH,
-            bot_token=BOT_TOKEN,
-            plugins={
-                "root": "plugins"
-            },
-        )
-
-
-# ============================================================
-# Koyeb Health Server
-# ============================================================
-
-async def health(request):
-    return web.Response(
-        text="OK",
-        status=200
+    super().__init__(
+        "link_downloader_bot",
+        api_id=API_ID,
+        api_hash=API_HASH,
+        bot_token=BOT_TOKEN,
+        plugins={
+            "root": "plugins"
+        },
     )
 
+============================================================
+
+Koyeb Health Server
+
+============================================================
+
+async def health(request):
+return web.Response(
+text="OK",
+status=200
+)
 
 async def start_health_server():
 
-    app = web.Application()
+app = web.Application()
 
-    app.router.add_get(
-        "/",
-        health
+app.router.add_get("/", health)
+app.router.add_get("/health", health)
+
+runner = web.AppRunner(app)
+
+await runner.setup()
+
+port = int(
+    os.environ.get(
+        "PORT",
+        "8080"
     )
+)
 
-    app.router.add_get(
-        "/health",
-        health
-    )
+site = web.TCPSite(
+    runner,
+    "0.0.0.0",
+    port
+)
 
-    runner = web.AppRunner(app)
+await site.start()
 
-    await runner.setup()
+logger.info(
+    "Health server started on port %s",
+    port
+)
 
-    port = int(
-        os.environ.get(
-            "PORT",
-            "8080"
-        )
-    )
+return runner
 
-    site = web.TCPSite(
-        runner,
-        "0.0.0.0",
-        port
-    )
+============================================================
 
-    await site.start()
+Start Bot With FloodWait Handling
 
-    logger.info(
-        "Health server started on port %s",
-        port
-    )
+============================================================
 
-    return runner
+async def start_bot(bot):
 
-
-# ============================================================
-# Main
-# ============================================================
-
-async def main():
-
-    logger.info("Starting Telegram bot...")
-
-    bot = Bot()
-
-    health_runner = await start_health_server()
+while True:
 
     try:
 
         await bot.start()
 
-        me = await bot.get_me()
+        return
 
-        logger.info("=" * 40)
-        logger.info("Bot Started Successfully")
-        logger.info("Username: @%s", me.username)
-        logger.info("ID: %s", me.id)
-        logger.info("=" * 40)
+    except FloodWait as e:
 
-        # Keep running
-        await asyncio.Event().wait()
+        wait_time = e.value + 5
 
-    except asyncio.CancelledError:
+        logger.warning(
+            "FloodWait detected! Waiting %s seconds before retrying...",
+            wait_time
+        )
 
-        pass
+        await asyncio.sleep(
+            wait_time
+        )
 
     except Exception:
 
         logger.exception(
-            "Fatal error while running bot"
+            "Error while starting bot. Retrying in 30 seconds..."
         )
 
-    finally:
+        await asyncio.sleep(
+            30
+        )
 
-        logger.info("Stopping bot...")
+============================================================
 
-        try:
-            await bot.stop()
-        except Exception:
-            pass
+Main
 
-        try:
-            await health_runner.cleanup()
-        except Exception:
-            pass
+============================================================
 
-        logger.info("Bot stopped.")
+async def main():
 
+logger.info("Starting Telegram bot...")
 
-if __name__ == "__main__":
+bot = Bot()
+
+health_runner = await start_health_server()
+
+try:
+
+    await start_bot(bot)
+
+    me = await bot.get_me()
+
+    logger.info("=" * 40)
+    logger.info("Bot Started Successfully")
+    logger.info("Username: @%s", me.username)
+    logger.info("ID: %s", me.id)
+    logger.info("=" * 40)
+
+    # Keep bot running forever
+    await asyncio.Event().wait()
+
+except asyncio.CancelledError:
+
+    logger.info(
+        "Bot task cancelled."
+    )
+
+except Exception:
+
+    logger.exception(
+        "Fatal error while running bot"
+    )
+
+finally:
+
+    logger.info("Stopping bot...")
 
     try:
-        asyncio.run(main())
 
-    except KeyboardInterrupt:
+        if bot.is_connected:
+            await bot.stop()
 
-        logger.info(
-            "Shutdown requested."
-        )
+    except Exception:
+
+        pass
+
+    try:
+
+        await health_runner.cleanup()
+
+    except Exception:
+
+        pass
+
+    logger.info("Bot stopped.")
+
+if name == "main":
+
+try:
+
+    asyncio.run(main())
+
+except KeyboardInterrupt:
+
+    logger.info(
+        "Shutdown requested."
+    )
