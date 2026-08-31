@@ -48,7 +48,7 @@ DOWNLOAD_DIR = os.getenv(
     "downloads"
 )
 
-# Maximum allowed download size: 4 GB
+# Maximum download size: 4 GB
 MAX_FILE_SIZE_GB = 4
 
 MAX_FILE_SIZE = (
@@ -56,6 +56,24 @@ MAX_FILE_SIZE = (
     * 1024
     * 1024
     * 1024
+)
+
+
+# ============================================================
+# Auto Delete Configuration
+# ============================================================
+
+# Default: 0 = disabled
+DEFAULT_AUTO_DELETE = int(
+    os.getenv("DEFAULT_AUTO_DELETE", "0")
+)
+
+# Minimum auto-delete time: 5 seconds
+MIN_AUTO_DELETE = 5
+
+# Maximum auto-delete time: 7 days
+MAX_AUTO_DELETE = (
+    7 * 24 * 60 * 60
 )
 
 
