@@ -1,3 +1,5 @@
+# config.py
+
 import os
 from dotenv import load_dotenv
 
@@ -5,7 +7,7 @@ load_dotenv()
 
 
 # ============================================================
-# Telegram
+# Telegram Configuration
 # ============================================================
 
 try:
@@ -18,10 +20,11 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 
 
 # ============================================================
-# MongoDB
+# MongoDB Configuration
 # ============================================================
 
 MONGO_URI = os.getenv("MONGO_URI", "")
+
 DATABASE_NAME = os.getenv(
     "DATABASE_NAME",
     "telegram_link_bot"
@@ -29,7 +32,7 @@ DATABASE_NAME = os.getenv(
 
 
 # ============================================================
-# Download
+# Download Configuration
 # ============================================================
 
 DOWNLOAD_DIR = os.getenv(
@@ -37,15 +40,14 @@ DOWNLOAD_DIR = os.getenv(
     "downloads"
 )
 
-try:
-    MAX_FILE_SIZE_MB = int(
-        os.getenv("MAX_FILE_SIZE_MB", "2000")
-    )
-except ValueError:
-    MAX_FILE_SIZE_MB = 2000
+# Maximum allowed download size: 4 GB
+MAX_FILE_SIZE_GB = 4
 
 MAX_FILE_SIZE = (
-    MAX_FILE_SIZE_MB * 1024 * 1024
+    MAX_FILE_SIZE_GB
+    * 1024
+    * 1024
+    * 1024
 )
 
 
@@ -70,7 +72,7 @@ os.makedirs(
 
 
 # ============================================================
-# Configuration Validation
+# Validate Configuration
 # ============================================================
 
 def validate_config():
