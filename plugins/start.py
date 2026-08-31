@@ -1,114 +1,107 @@
-# plugins/start.py
-
 import re
-import logging
 
 from pyrogram import Client, filters
 from pyrogram.types import (
     Message,
     InlineKeyboardMarkup,
-    InlineKeyboardButton
+    InlineKeyboardButton,
 )
 
-from database.database import add_user
-from plugins.callbacks import create_download_request
-
-
-logger = logging.getLogger(__name__)
+from config import START_IMAGE
 
 
 # ============================================================
-# URL Pattern
+# START KEYBOARD
 # ============================================================
 
-URL_PATTERN = re.compile(
-    r"https?://[^\s<>\"]+",
-    re.IGNORECASE
+def start_keyboard():
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    "❓ Help",
+                    callback_data="help"
+                ),
+                InlineKeyboardButton(
+                    "ℹ️ About",
+                    callback_data="about"
+                )
+            ]
+        ]
+    )
+
+
+# ============================================================
+# START MESSAGE
+# ============================================================
+
+START_TEXT = (
+    "👋 **Hello!**\n\n"
+    "🔗 Send me a direct download link "
+    "and I'll download the file for you.\n\n"
+    "📥 Supports **Video** and **Document**."
 )
 
 
 # ============================================================
-# /start
+# /START
 # ============================================================
 
 @Client.on_message(
     filters.command("start")
+    & filters.private
 )
 async def start_command(
     client: Client,
     message: Message
 ):
 
-    user = message.from_user
-
-    if not user:
-        return
+    keyboard = start_keyboard()
 
     # --------------------------------------------------------
-    # Save user to MongoDB
+    # SEND START IMAGE
     # --------------------------------------------------------
 
-    try:
+    if START_IMAGE:
 
-        await add_user(
-            user_id=user.id,
-            username=user.username,
-            first_name=user.first_name
-        )
+        try:
 
-    except Exception as e:
+            await message.reply_photo(
+                photo=START_IMAGE,
+                caption=START_TEXT,
+                reply_markup=keyboard
+            )
 
-        logger.error(
-            "Failed to save user: %s",
-            e
-        )
+            return
 
+        except Exception:
+
+            # If image URL is invalid, fall back
+            # to normal text message.
+            pass
 
     # --------------------------------------------------------
-    # Welcome Message
+    # TEXT FALLBACK
     # --------------------------------------------------------
-
-    text = (
-        "👋 **Welcome to Direct Link Downloader!**\n\n"
-
-        "🔗 Send me a direct download link and "
-        "I'll download the file for you.\n\n"
-
-        "━━━━━━━━━━━━━━━━━━━━\n\n"
-
-        "🎬 **Video**\n"
-        "Send supported video files as Telegram video.\n\n"
-
-        "📁 **Document**\n"
-        "Send the file as a Telegram document.\n\n"
-
-        "━━━━━━━━━━━━━━━━━━━━\n\n"
-
-        "📌 **How to use:**\n\n"
-        "1️⃣ Send a direct download URL\n"
-        "2️⃣ Choose **Video** or **Document**\n"
-        "3️⃣ Wait for the download\n"
-        "4️⃣ Receive your file\n\n"
-
-        "📦 Maximum download size: **4 GB**\n\n"
-
-        "❌ Use `/cancel` to cancel an active download."
-    )
 
     await message.reply_text(
-        text,
-        disable_web_page_preview=True
+        START_TEXT,
+        reply_markup=keyboard
     )
 
 
 # ============================================================
-# URL Handler
+# URL HANDLER
 # ============================================================
 
 @Client.on_message(
-    filters.text
+    filters.private
+    & filters.text
     & ~filters.command(
-        ["start", "cancel"]
+        [
+            "start",
+            "cancel"
+        ]
     )
 )
 async def url_handler(
@@ -116,99 +109,53 @@ async def url_handler(
     message: Message
 ):
 
-    user = message.from_user
-
-    if not user:
-        return
-
-    text = message.text or ""
+    url = message.text.strip()
 
     # --------------------------------------------------------
-    # Find URL
+    # VALIDATE URL
     # --------------------------------------------------------
 
-    match = URL_PATTERN.search(text)
-
-    if not match:
+    if not re.match(
+        r"^https?://",
+        url,
+        re.IGNORECASE
+    ):
 
         await message.reply_text(
-            "❌ **No valid URL found.**\n\n"
-            "Please send a direct download link."
+            "❌ **Please send a valid HTTP/HTTPS URL.**"
         )
 
         return
 
-
-    url = match.group(0).rstrip(
-        ".,!?)]}>"
-    )
-
-
     # --------------------------------------------------------
-    # Save User
+    # VERY LONG URL CHECK
+    # --------------------------------------------------------
+    #
+    # The URL is temporarily placed in callback_data.
+    # Telegram has a callback_data size limit.
+    #
     # --------------------------------------------------------
 
-    try:
+    if len(
+        url.encode("utf-8")
+    ) > 150:
 
-        await add_user(
-            user_id=user.id,
-            username=user.username,
-            first_name=user.first_name
+        await message.reply_text(
+            "❌ **This URL is too long.**\n\n"
+            "Please send a shorter direct download URL."
         )
 
-    except Exception as e:
-
-        logger.error(
-            "Failed to save user: %s",
-            e
-        )
-
+        return
 
     # --------------------------------------------------------
-    # Create Short Download ID
+    # SHOW VIDEO / DOCUMENT BUTTONS
     # --------------------------------------------------------
 
-    short_id = create_download_request(
-        user_id=user.id,
-        url=url
+    from plugins.callbacks import (
+        show_format_buttons
     )
 
-
-    # --------------------------------------------------------
-    # Buttons
-    # --------------------------------------------------------
-
-    keyboard = InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    "🎬 Video",
-                    callback_data=f"video:{short_id}"
-                ),
-
-                InlineKeyboardButton(
-                    "📁 Document",
-                    callback_data=f"document:{short_id}"
-                )
-            ],
-
-            [
-                InlineKeyboardButton(
-                    "❌ Cancel",
-                    callback_data="cancel_download"
-                )
-            ]
-        ]
-    )
-
-
-    # --------------------------------------------------------
-    # Reply
-    # --------------------------------------------------------
-
-    await message.reply_text(
-        "🔗 **Link detected!**\n\n"
-        "Choose how you want me to send the file:",
-        reply_markup=keyboard,
-        disable_web_page_preview=True
+    await show_format_buttons(
+        message,
+        url
     )
