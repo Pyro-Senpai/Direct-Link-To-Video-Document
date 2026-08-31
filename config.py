@@ -47,7 +47,7 @@ START_IMAGE = os.getenv(
 
 DOWNLOAD_DIR = os.getenv(
     "DOWNLOAD_DIR",
-    "downloads"
+    "/tmp/downloads"
 )
 
 # Maximum allowed download size: 4 GB
