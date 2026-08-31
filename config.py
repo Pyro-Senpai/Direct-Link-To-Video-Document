@@ -32,6 +32,16 @@ DATABASE_NAME = os.getenv(
 
 
 # ============================================================
+# Start Message Image
+# ============================================================
+
+START_IMAGE = os.getenv(
+    "START_IMAGE",
+    "https://telegra.ph/file/8dd38af99889caea1cf4b-2bd9a6e6cfb04c2b95.jpg"
+)
+
+
+# ============================================================
 # Download Configuration
 # ============================================================
 
@@ -57,7 +67,7 @@ MAX_FILE_SIZE = (
 
 DEFAULT_CAPTION = os.getenv(
     "DEFAULT_CAPTION",
-    "Downloaded by @YourBot"
+    "Encoded by @ConverterV22_Bot"
 )
 
 
