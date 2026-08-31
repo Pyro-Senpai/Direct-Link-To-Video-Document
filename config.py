@@ -1,5 +1,3 @@
-# config.py
-
 import os
 from dotenv import load_dotenv
 
@@ -20,6 +18,16 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 
 
 # ============================================================
+# Admin Configuration
+# ============================================================
+
+try:
+    ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
+except ValueError:
+    ADMIN_ID = 0
+
+
+# ============================================================
 # MongoDB Configuration
 # ============================================================
 
@@ -32,22 +40,12 @@ DATABASE_NAME = os.getenv(
 
 
 # ============================================================
-# Start Message Image
-# ============================================================
-
-START_IMAGE = os.getenv(
-    "START_IMAGE",
-    "https://telegra.ph/file/8dd38af99889caea1cf4b-2bd9a6e6cfb04c2b95.jpg"
-)
-
-
-# ============================================================
 # Download Configuration
 # ============================================================
 
 DOWNLOAD_DIR = os.getenv(
     "DOWNLOAD_DIR",
-    "/tmp/downloads"
+    "downloads"
 )
 
 # Maximum allowed download size: 4 GB
@@ -67,7 +65,7 @@ MAX_FILE_SIZE = (
 
 DEFAULT_CAPTION = os.getenv(
     "DEFAULT_CAPTION",
-    "Encoded by @ConverterV22_Bot"
+    "Downloaded by @YourBot"
 )
 
 
@@ -100,6 +98,9 @@ def validate_config():
 
     if not MONGO_URI:
         missing.append("MONGO_URI")
+
+    if ADMIN_ID == 0:
+        missing.append("ADMIN_ID")
 
     if missing:
         raise RuntimeError(
