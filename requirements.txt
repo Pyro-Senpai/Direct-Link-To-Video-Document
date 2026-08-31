@@ -1,6 +1,7 @@
-pyrogram
+pyrofork
+pyromod
 tgcrypto
 aiohttp
 motor
 python-dotenv
-
+dnspython
