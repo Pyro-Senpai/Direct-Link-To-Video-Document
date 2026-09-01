@@ -8,152 +8,174 @@ from pyrogram.errors import FloodWait
 
 from config import API_ID, API_HASH, BOT_TOKEN
 
+
 logging.basicConfig(
-level=logging.INFO,
-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
+
+
+# ============================================================
+# Bot Class
+# ============================================================
 
 class Bot(Client):
-def init(self):
-super().init(
-"link_downloader_bot",
-api_id=API_ID,
-api_hash=API_HASH,
-bot_token=BOT_TOKEN,
-plugins={
-"root": "plugins"
-},
-)
 
-============================================================
+    def __init__(self):
+        super().__init__(
+            "link_downloader_bot",
+            api_id=API_ID,
+            api_hash=API_HASH,
+            bot_token=BOT_TOKEN,
+            plugins={
+                "root": "plugins"
+            },
+        )
 
-Koyeb Health Server
 
-============================================================
+# ============================================================
+# Koyeb Health Server
+# ============================================================
 
 async def health(request):
-return web.Response(
-text="OK",
-status=200
-)
+    return web.Response(
+        text="OK",
+        status=200
+    )
+
 
 async def start_health_server():
-app = web.Application()
 
-app.router.add_get("/", health)
-app.router.add_get("/health", health)
+    app = web.Application()
 
-runner = web.AppRunner(app)
-await runner.setup()
+    app.router.add_get("/", health)
+    app.router.add_get("/health", health)
 
-port = int(
-    os.environ.get(
-        "PORT",
-        "8080"
+    runner = web.AppRunner(app)
+    await runner.setup()
+
+    port = int(
+        os.environ.get(
+            "PORT",
+            "8080"
+        )
     )
-)
 
-site = web.TCPSite(
-    runner,
-    "0.0.0.0",
-    port
-)
+    site = web.TCPSite(
+        runner,
+        "0.0.0.0",
+        port
+    )
 
-await site.start()
+    await site.start()
 
-logger.info(
-    "Health server started on port %s",
-    port
-)
+    logger.info(
+        "Health server started on port %s",
+        port
+    )
 
-return runner
+    return runner
 
-============================================================
 
-Start Bot With FloodWait Handling
-
-============================================================
+# ============================================================
+# Start Bot With FloodWait Handling
+# ============================================================
 
 async def start_bot(bot):
-while True:
-try:
-await bot.start()
-return
 
-    except FloodWait as e:
-        wait_time = e.value + 5
+    while True:
 
-        logger.warning(
-            "FloodWait detected! Waiting %s seconds before retrying...",
-            wait_time
-        )
+        try:
+            await bot.start()
+            return
 
-        await asyncio.sleep(wait_time)
+        except FloodWait as e:
 
-    except Exception:
-        logger.exception(
-            "Error while starting bot. Retrying in 30 seconds..."
-        )
+            wait_time = e.value + 5
 
-        await asyncio.sleep(30)
+            logger.warning(
+                "FloodWait detected! Waiting %s seconds before retrying...",
+                wait_time
+            )
 
-============================================================
+            await asyncio.sleep(wait_time)
 
-Main
+        except Exception:
 
-============================================================
+            logger.exception(
+                "Error while starting bot. Retrying in 30 seconds..."
+            )
+
+            await asyncio.sleep(30)
+
+
+# ============================================================
+# Main
+# ============================================================
 
 async def main():
-logger.info("Starting Telegram bot...")
 
-bot = Bot()
+    logger.info("Starting Telegram bot...")
 
-health_runner = await start_health_server()
+    bot = Bot()
 
-try:
-    await start_bot(bot)
-
-    me = await bot.get_me()
-
-    logger.info("=" * 40)
-    logger.info("Bot Started Successfully")
-    logger.info("Username: @%s", me.username)
-    logger.info("ID: %s", me.id)
-    logger.info("=" * 40)
-
-    # Keep bot running forever
-    await asyncio.Event().wait()
-
-except asyncio.CancelledError:
-    logger.info("Bot task cancelled.")
-
-except Exception:
-    logger.exception(
-        "Fatal error while running bot"
-    )
-
-finally:
-    logger.info("Stopping bot...")
+    health_runner = await start_health_server()
 
     try:
-        await bot.stop()
+
+        await start_bot(bot)
+
+        me = await bot.get_me()
+
+        logger.info("=" * 40)
+        logger.info("Bot Started Successfully")
+        logger.info("Username: @%s", me.username)
+        logger.info("ID: %s", me.id)
+        logger.info("=" * 40)
+
+        # Keep bot running forever
+        await asyncio.Event().wait()
+
+    except asyncio.CancelledError:
+
+        logger.info("Bot task cancelled.")
+
     except Exception:
-        pass
+
+        logger.exception(
+            "Fatal error while running bot"
+        )
+
+    finally:
+
+        logger.info("Stopping bot...")
+
+        try:
+            await bot.stop()
+        except Exception:
+            pass
+
+        try:
+            await health_runner.cleanup()
+        except Exception:
+            pass
+
+        logger.info("Bot stopped.")
+
+
+# ============================================================
+# Run
+# ============================================================
+
+if __name__ == "__main__":
 
     try:
-        await health_runner.cleanup()
-    except Exception:
-        pass
+        asyncio.run(main())
 
-    logger.info("Bot stopped.")
+    except KeyboardInterrupt:
 
-if name == "main":
-try:
-asyncio.run(main())
-
-except KeyboardInterrupt:
-    logger.info(
-        "Shutdown requested."
-    )
+        logger.info(
+            "Shutdown requested."
+        )
