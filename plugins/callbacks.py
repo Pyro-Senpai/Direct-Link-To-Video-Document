@@ -51,17 +51,17 @@ async def show_format_buttons(message: Message, url: str):
         [
             [
                 InlineKeyboardButton(
-                    "🎬 Video",
+                    "Vɪᴅᴇᴏ",
                     callback_data=f"video:{short_id}",
                 ),
                 InlineKeyboardButton(
-                    "📄 Document",
+                    "Dᴏᴄᴜᴍᴇɴᴛ",
                     callback_data=f"document:{short_id}",
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    "❌ Cancel",
+                    "Cᴀɴᴄᴇʟ",
                     callback_data="cancel_download",
                 ),
             ],
@@ -69,7 +69,7 @@ async def show_format_buttons(message: Message, url: str):
     )
 
     await message.reply_text(
-        "📥 **Choose download format:**",
+        "**ᴄʜᴏᴏsᴇ ᴅᴏᴡɴʟᴏᴀᴅ ғᴏʀᴍᴀᴛ:**",
         reply_markup=keyboard,
     )
 
@@ -88,7 +88,7 @@ async def format_callback(
         mode, short_id = data.split(":", 1)
     except ValueError:
         await callback_query.answer(
-            "❌ Invalid request.",
+            "ɪɴᴠᴀʟɪᴅ ʀᴇǫᴜᴇsᴛ.",
             show_alert=True,
         )
         return
@@ -97,14 +97,14 @@ async def format_callback(
 
     if not request:
         await callback_query.answer(
-            "❌ This download request has expired.",
+            "ᴛʜɪs ᴅᴏᴡɴʟᴏᴀᴅ ʀᴇǫᴜᴇsᴛ ʜᴀs ᴇxᴘᴀʀɪᴇᴅ.",
             show_alert=True,
         )
         return
 
     if request["user_id"] != user_id:
         await callback_query.answer(
-            "❌ This button belongs to another user.",
+            "ᴛʜɪs ʙᴜᴛᴛᴏɴ ʙᴇʟᴏɴɢs ᴛᴏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.",
             show_alert=True,
         )
         return
@@ -114,7 +114,7 @@ async def format_callback(
     delete_download_request(short_id)
 
     await callback_query.answer(
-        "📥 Starting download..."
+        "sᴛᴀʀᴛɪɴɢ ᴅᴏᴡɴʟᴏᴀᴅ..."
     )
 
     await start_download(
@@ -136,7 +136,7 @@ async def cancel_callback(
     user_id = callback_query.from_user.id
 
     await callback_query.answer(
-        "❌ Cancelled."
+        "Cᴀɴᴄᴀʟʟᴇᴅ."
     )
 
     cancelled = await cancel_download(user_id)
@@ -144,20 +144,20 @@ async def cancel_callback(
     if cancelled:
         try:
             await callback_query.message.edit_text(
-                "❌ **Download cancelled.**"
+                "**ᴅᴏᴡɴʟᴏᴀᴅ ᴄᴀɴᴄᴇʟʟᴇᴅ.**"
             )
         except Exception as e:
             logger.warning(
-                "Failed to edit cancel message: %s",
+                "ғᴀɪʟᴇᴅ ᴛᴏ ᴇᴅɪᴛ ᴄᴀɴᴄᴇʟ ᴍᴇssᴀɢᴇ: %s",
                 e,
             )
     else:
         try:
             await callback_query.message.edit_text(
-                "ℹ️ **No active download.**"
+                "**ɴᴏ ᴀᴄᴛɪᴠᴇ ᴅᴏᴡɴʟᴏᴀᴅ.**"
             )
         except Exception as e:
             logger.warning(
-                "Failed to edit cancel message: %s",
+                "ғᴀɪʟᴇᴅ ᴛᴏ ᴇᴅɪᴛ ᴄᴀɴᴄᴇʟ ᴍᴇssᴀɢᴇ: %s",
                 e,
             )
