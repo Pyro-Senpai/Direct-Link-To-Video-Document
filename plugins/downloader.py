@@ -271,6 +271,7 @@ def optimize_video_for_streaming(filepath):
         )
         if result.returncode == 0 and os.path.exists(temp_output):
             os.replace(temp_output, filepath)
+            return True
     except Exception:
         logger.exception("Failed to optimize video moov atom.")
         if os.path.exists(temp_output):
@@ -278,6 +279,7 @@ def optimize_video_for_streaming(filepath):
                 os.remove(temp_output)
             except:
                 pass
+    return False
 
 
 def get_video_metadata(filepath):
