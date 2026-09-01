@@ -79,10 +79,10 @@ def parse_time(value: str):
 def format_delete_time(seconds):
 
     if seconds <= 0:
-        return "OFF"
+        return "ᴏꜰꜰ"
 
     if seconds < 60:
-        return f"{seconds} seconds"
+        return f"{seconds} ꜱᴇᴄᴏɴᴅꜱ"
 
     if seconds < 3600:
 
@@ -91,11 +91,11 @@ def format_delete_time(seconds):
 
         if remaining:
             return (
-                f"{minutes} minutes "
-                f"{remaining} seconds"
+                f"{minutes} ᴍɪɴᴜᴛᴇꜱ "
+                f"{remaining} ꜱᴇᴄᴏɴᴅꜱ"
             )
 
-        return f"{minutes} minutes"
+        return f"{minutes} ᴍɪɴᴜᴛᴇꜱ"
 
     if seconds < 86400:
 
@@ -105,15 +105,15 @@ def format_delete_time(seconds):
 
         if minutes:
             return (
-                f"{hours} hours "
-                f"{minutes} minutes"
+                f"{hours} ʜᴏᴜʀꜱ "
+                f"{minutes} ᴍɪɴᴜᴛᴇꜱ"
             )
 
-        return f"{hours} hours"
+        return f"{hours} ʜᴏᴜʀꜱ"
 
     days = seconds // 86400
 
-    return f"{days} days"
+    return f"{days} ᴅᴀʏꜱ"
 
 
 def is_admin(user_id):
@@ -143,7 +143,7 @@ async def set_delete_command(
     ):
 
         await message.reply_text(
-            "❌ **Admin only command.**"
+            "**ᴀᴅᴍɪɴ ᴏɴʟʏ ᴄᴏᴍᴍᴀɴᴅ.**"
         )
 
         return
@@ -155,9 +155,9 @@ async def set_delete_command(
         )
 
         await message.reply_text(
-            "⚙️ **Auto Delete Settings**\n\n"
-            f"🗑️ Current: `{current}`\n\n"
-            "**Examples:**\n"
+            "**ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ ꜱᴇᴛᴛɪɴɢꜱ**\n"
+            f"ᴄᴜʀʀᴇɴᴛ: `{current}`\n"
+            "**ᴇxᴀᴍᴘʟᴇꜱ:**\n"
             "`/setdelete 30` → 30 seconds\n"
             "`/setdelete 5m` → 5 minutes\n"
             "`/setdelete 2h` → 2 hours\n"
@@ -174,8 +174,8 @@ async def set_delete_command(
     if seconds is None:
 
         await message.reply_text(
-            "❌ **Invalid time.**\n\n"
-            "Examples:\n"
+            "**ɪɴᴠᴀʟɪᴅ ᴛɪᴍᴇ.**\n"
+            "ᴇxᴀᴍᴘʟᴇꜱ:\n"
             "`/setdelete 30`\n"
             "`/setdelete 5m`\n"
             "`/setdelete 2h`\n"
@@ -190,14 +190,14 @@ async def set_delete_command(
     if seconds == 0:
 
         await message.reply_text(
-            "🗑️ **Auto-delete disabled.**"
+            "**ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ᴅɪꜱᴀʙʟᴇᴅ.**"
         )
 
         return
 
     await message.reply_text(
-        "✅ **Auto-delete updated.**\n\n"
-        f"⏱️ Delete after: "
+        "**ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ᴜᴘᴅᴀᴛᴇᴅ.**\n"
+        f"ᴅᴇʟᴇᴛᴇ ᴀꜰᴛᴇʀ: "
         f"`{format_delete_time(seconds)}`"
     )
 
@@ -219,14 +219,14 @@ async def delete_status(
     ):
 
         await message.reply_text(
-            "❌ **Admin only command.**"
+            "**ᴀᴅᴍɪɴ ᴏɴʟʏ ᴄᴏᴍᴍᴀɴᴅ.**"
         )
 
         return
 
     await message.reply_text(
-        "🗑️ **Auto Delete**\n\n"
-        f"⏱️ Current setting: "
+        "**ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ**\n"
+        f"ᴄᴜʀʀᴇɴᴛ ꜱᴇᴛᴛɪɴɢ: "
         f"`{format_delete_time(auto_delete_seconds)}`"
     )
 
@@ -249,12 +249,12 @@ async def schedule_delete(
         notice_message = await client.send_message(
             chat_id=chat_id,
             text=(
-                "🗑️ **Auto Delete Enabled**\n\n"
-                "📦 Your file will be "
-                f"automatically deleted after "
-                f"`{delete_after}`.\n\n"
-                "⏳ Please save the file before "
-                "the timer expires."
+                "**ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ ᴇɴᴀʙʟᴇᴅ**\n"
+                "ʏᴏᴜʀ ꜰɪʟᴇ ᴡɪʟʟ ʙᴇ "
+                f"ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ ᴀꜰᴛᴇʀ "
+                f"`{delete_after}`.\n"
+                "ᴘʟᴇᴀꜱᴇ ꜱᴀᴠᴇ ᴛʜᴇ ꜰɪʟᴇ ʙᴇꜰᴏʀᴇ "
+                "ᴛʜᴇ ᴛɪᴍᴇʀ ᴇxᴘɪʀᴇꜱ."
             )
         )
 
@@ -277,8 +277,8 @@ async def schedule_delete(
         try:
 
             await notice_message.edit_text(
-                "✅ **File successfully deleted.**\n\n"
-                f"🗑️ Auto-delete time: "
+                "**ꜰɪʟᴇ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ.**\n"
+                f"ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ᴛɪᴍᴇ: "
                 f"`{delete_after}`"
             )
 
@@ -289,9 +289,9 @@ async def schedule_delete(
                 await client.send_message(
                     chat_id=chat_id,
                     text=(
-                        "✅ **File successfully deleted.**\n\n"
-                        "🗑️ The file has been "
-                        "removed automatically."
+                        "**ꜰɪʟᴇ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ.**\n"
+                        "ᴛʜᴇ ꜰɪʟᴇ ʜᴀꜱ ʙᴇᴇɴ "
+                        "ʀᴇᴍᴏᴠᴇᴅ ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ."
                     )
                 )
 
@@ -306,5 +306,5 @@ async def schedule_delete(
     except Exception:
 
         logger.exception(
-            "Auto-delete failed"
+            "ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ғᴀɪʟᴇᴅ"
         )
