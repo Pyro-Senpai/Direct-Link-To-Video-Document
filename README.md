@@ -1,353 +1,357 @@
-🚀 Telegram Link Downloader Bot
+<div align="center">⚡ LINK⚡DROP
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python" />
-  <img src="https://img.shields.io/badge/Pyrogram-2.x-green?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Koyeb-Deploy-purple?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Telegram-Bot-blue?style=for-the-badge&logo=telegram" />
-</p><p align="center">
-  <b>⚡ A powerful Telegram Link Downloader Bot built with Python & Pyrogram.</b>
-</p>---
+"Telegram Link Downloader"
 
-✨ Features
+Turn direct links into Telegram files — fast, simple & clean.
+
+<br>""Python" (https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)" (https://www.python.org/)
+""Pyrogram" (https://img.shields.io/badge/Pyrogram-2.x-2CA5E0?style=flat-square)" (https://docs.pyrogram.org/)
+""Aiohttp" (https://img.shields.io/badge/Aiohttp-Async-2C3E50?style=flat-square)" (https://docs.aiohttp.org/)
+""Koyeb" (https://img.shields.io/badge/Koyeb-Ready-7C3AED?style=flat-square)" (https://www.koyeb.com/)
+
+</div>---
+
+"01" — WHAT IS LINK⚡DROP?
+
+«LINK⚡DROP is an asynchronous Telegram downloader bot designed to receive a downloadable URL, process it, and return the file directly to the user.»
+
+       ┌───────────────────────────────┐
+       │        🔗  DIRECT URL          │
+       └───────────────┬───────────────┘
+                       │
+                       ▼
+       ┌───────────────────────────────┐
+       │        🤖  TELEGRAM BOT        │
+       └───────────────┬───────────────┘
+                       │
+             ┌─────────┴─────────┐
+             ▼                   ▼
+      ┌─────────────┐     ┌─────────────┐
+      │ 🎬  VIDEO   │     │ 📄 DOCUMENT │
+      └──────┬──────┘     └──────┬──────┘
+             │                   │
+             └─────────┬─────────┘
+                       ▼
+              ┌─────────────────┐
+              │ 📤 TELEGRAM FILE │
+              └─────────────────┘
+
+---
+
+"02" — CORE FEATURES
 
 <table>
 <tr>
-<td>🔗 <b>URL Download</b></td>
-<td>🎬 <b>Video Mode</b></td>
-</tr>
-<tr>
-<td>📄 <b>Document Mode</b></td>
-<td>❌ <b>Cancel Download</b></td>
-</tr>
-<tr>
-<td>🔒 <b>User Security</b></td>
-<td>🆔 <b>Short Callback IDs</b></td>
-</tr>
-<tr>
-<td>☁️ <b>Koyeb Support</b></td>
-<td>⚡ <b>Async Processing</b></td>
+<td width="50%">🎬 Dual Format
+
+Send downloads as:
+
+- Video
+- Document
+
+</td>
+<td width="50%">⚡ Async Engine
+
+Built around asynchronous Python for efficient processing.
+
+</td>
+</tr><tr>
+<td>🔒 Request Protection
+
+Each download request receives a unique short ID and is tied to the requesting Telegram user.
+
+</td>
+<td>❌ Smart Cancel
+
+Users can cancel an active download directly from the inline keyboard.
+
+</td>
+</tr><tr>
+<td>☁️ Koyeb Ready
+
+Includes an HTTP health server for cloud deployment and health checks.
+
+</td>
+<td>🧩 Plugin Architecture
+
+Features are separated into individual plugin modules for easier maintenance.
+
+</td>
 </tr>
 </table>---
 
-🧰 Tech Stack
+"03" — USER FLOW
 
-🐍 Python
-⚡ Pyrogram
-🌐 Aiohttp
-☁️ Koyeb
-📦 Aiofiles
+┌──────────────┐
+│ 👤 USER      │
+└──────┬───────┘
+       │
+       │  Send URL
+       ▼
+┌──────────────────────┐
+│ 🤖 LINK⚡DROP         │
+│ Request received     │
+└──────────┬───────────┘
+           │
+           ▼
+┌────────────────────────────┐
+│ 📥 Choose download format  │
+├─────────────┬──────────────┤
+│ 🎬 VIDEO    │ 📄 DOCUMENT  │
+└─────────────┴──────────────┘
+           │
+           ▼
+┌──────────────────────┐
+│      📥 DOWNLOAD     │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│      📤 TELEGRAM     │
+└──────────────────────┘
 
 ---
 
-📁 Project Structure
+"04" — BUTTON SYSTEM
 
-Telegram-Link-Downloader/
-│
-├── 📄 bot.py
-├── 📄 config.py
-├── 📄 requirements.txt
-├── 📄 Dockerfile
-├── 📄 README.md
-│
-└── 📂 plugins/
-    ├── 📄 __init__.py
-    ├── 📄 start.py
-    ├── 📄 callbacks.py
-    ├── 📄 cancel.py
-    └── 📄 downloader.py
+The bot generates a temporary request ID instead of placing the complete URL inside Telegram's callback data.
+
+┌─────────────────────────────────────────┐
+│       📥 CHOOSE DOWNLOAD FORMAT         │
+├──────────────────────┬──────────────────┤
+│     🎬 VIDEO         │   📄 DOCUMENT    │
+├──────────────────────┴──────────────────┤
+│              ❌ CANCEL                   │
+└─────────────────────────────────────────┘
+
+Example callback:
+
+video:a91f42c8d301
+
+instead of:
+
+video:https://example.com/a/very/long/download/url
 
 ---
 
-🔑 Environment Variables
+"05" — PROJECT MAP
 
-Create the following environment variables:
+LINK⚡DROP/
+│
+├── 🤖 bot.py
+│   └── Application entry point
+│
+├── ⚙️ config.py
+│   └── Environment configuration
+│
+├── 📦 requirements.txt
+│   └── Python dependencies
+│
+├── 🐳 Dockerfile
+│   └── Container configuration
+│
+├── 📖 README.md
+│
+└── 🧩 plugins/
+    │
+    ├── 🚀 start.py
+    │   └── Start command & URL handling
+    │
+    ├── 🎛️ callbacks.py
+    │   └── Video / Document / Cancel buttons
+    │
+    ├── 📥 downloader.py
+    │   └── Download engine
+    │
+    └── ❌ cancel.py
+        └── Cancel command
+
+---
+
+"06" — ENVIRONMENT
+
+Create these environment variables:
 
 API_ID=YOUR_API_ID
 API_HASH=YOUR_API_HASH
 BOT_TOKEN=YOUR_BOT_TOKEN
 
-«⚠️ Never publish your "BOT_TOKEN" or "API_HASH" publicly.»
+🔐 Keep Secrets Private
+
+┌──────────────────────────────────────┐
+│ ⚠️ NEVER COMMIT THESE TO GITHUB      │
+├──────────────────────────────────────┤
+│ API_HASH                             │
+│ BOT_TOKEN                            │
+│ DATABASE_URL  (if used)              │
+└──────────────────────────────────────┘
+
+Use Koyeb environment variables or a local ".env" setup instead.
 
 ---
 
-🤖 Create Your Telegram Bot
+"07" — LOCAL SETUP
 
-Open Telegram and search for:
-
-@BotFather
-
-Then use:
-
-/newbot
-
-Follow the instructions and copy your bot token.
-
----
-
-🔐 Get API ID & API HASH
-
-Open:
-
-https://my.telegram.org/
-
-Then:
-
-Login
-  ↓
-API Development Tools
-  ↓
-Create New Application
-  ↓
-Copy API_ID & API_HASH
-
----
-
-📦 Installation
-
-1️⃣ Clone Repository
+Clone
 
 git clone YOUR_REPOSITORY_URL
-cd Telegram-Link-Downloader
+cd LINK-DOWNLOADER
 
-2️⃣ Install Requirements
+Install
 
 pip install -r requirements.txt
 
-3️⃣ Start Bot
+Run
 
 python bot.py
 
----
+Expected startup:
 
-📋 requirements.txt
-
-Pyrogram>=2.0.106
-pyrofork>=2.3.69
-pyromod
-aiohttp
-aiofiles
-requests
-TgCrypto
+┌──────────────────────────────────────┐
+│ 🚀 Starting Telegram bot...          │
+│                                      │
+│ 🌐 Health server started             │
+│ 🤖 Bot Started Successfully          │
+└──────────────────────────────────────┘
 
 ---
 
-🎯 How It Works
+"08" — KOYEB DEPLOYMENT
 
-👤 User
-   │
-   │ Sends URL
-   ▼
-🤖 Telegram Bot
+GitHub
    │
    ▼
-🎬 Video     📄 Document
-   │              │
-   └──────┬───────┘
-          ▼
-     📥 Download
-          │
-          ▼
-     📤 Send File
-          │
-          ▼
-       👤 User
+┌───────────────┐
+│     KOYEB     │
+├───────────────┤
+│ Build          │
+│ Deploy         │
+│ Health Check   │
+└───────┬───────┘
+        │
+        ▼
+   🤖 BOT ONLINE
 
----
-
-🎬 Download Format
-
-When a user sends a URL, the bot shows:
-
-┌─────────────────────────────────┐
-│     📥 Choose download format   │
-├─────────────────────────────────┤
-│  🎬 Video     │  📄 Document   │
-├─────────────────────────────────┤
-│          ❌ Cancel              │
-└─────────────────────────────────┘
-
-🎬 Video
-
-The downloaded file is sent as a Telegram video.
-
-📄 Document
-
-The downloaded file is sent as a Telegram document.
-
-❌ Cancel
-
-Cancels the user's active download.
-
----
-
-🔒 Security
-
-The bot doesn't put the full URL inside Telegram's callback data.
-
-Instead:
-
-Full URL
-   ↓
-Generate Short ID
-   ↓
-Store URL
-   ↓
-Send Button
-
-Example:
-
-video:a1b2c3d4e5f6
-
-The bot also verifies the Telegram user ID before starting the download.
-
----
-
-☁️ Koyeb Deployment
-
-Step 1 — Upload to GitHub
-
-Push your project to GitHub.
-
-Step 2 — Create Koyeb App
-
-Create a new Web Service and connect your GitHub repository.
-
-Step 3 — Add Environment Variables
+Required Variables
 
 API_ID
 API_HASH
 BOT_TOKEN
 
-Step 4 — Port
-
-The health server uses:
-
-8080
-
-or Koyeb's:
-
-PORT
-
-environment variable.
-
-Step 5 — Start Command
+Start Command
 
 python bot.py
 
+The included health server listens on Koyeb's "PORT" environment variable, falling back to "8080".
+
 ---
 
-🩺 Health Check
+"09" — HEALTH CHECK
 
-The bot includes an "aiohttp" health server.
+Endpoints:
 
 GET /
-
-Response:
-
-OK
-
-Another endpoint:
-
 GET /health
 
 Response:
 
 OK
 
-This allows Koyeb to verify that the service is running.
-
----
-
-🐳 Docker
-
-Example "Dockerfile":
-
-FROM python:3.12-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-CMD ["python", "bot.py"]
-
----
-
-🐛 Troubleshooting
-
-❌ IndentationError
-
-Check the indentation of your Python files.
-
 Example:
 
-async def test():
-    print("Hello")
-
-Not:
-
-async def test():
-print("Hello")
-
----
-
-❌ Client is already connected
-
-Make sure the same Pyrogram client isn't being started multiple times.
-
-Use:
-
-await bot.start()
-
-only once for the application lifecycle.
+┌─────────────────────────────────┐
+│ Koyeb Health Check              │
+├─────────────────────────────────┤
+│ GET /                           │
+│                                 │
+│ HTTP 200                        │
+│ Response: OK                    │
+└─────────────────────────────────┘
 
 ---
 
-❌ ImportError
+"10" — ERROR HANDLING
 
-Check that the imported function or variable actually exists.
+FloodWait
 
-Example:
+Telegram "FloodWait" errors are handled automatically with a delay before retrying.
 
-from plugins.downloader import start_download
+Startup Errors
 
-Make sure "start_download" exists inside:
+Fatal startup errors are allowed to terminate the process rather than repeatedly calling "bot.start()" on an already-connected Pyrogram client.
 
-plugins/downloader.py
-
----
-
-⚠️ Important
-
-This bot should only be used to download content that you have permission to access or download.
-
-Do not use it to bypass access controls, copyright restrictions, or website security mechanisms.
+Error
+  │
+  ├── FloodWait ──► Wait ──► Retry
+  │
+  └── Other Error ──► Stop ──► Koyeb Restart
 
 ---
 
-⭐ Support
+"11" — REQUIREMENTS
 
-If you like this project:
+Typical dependencies:
 
-⭐ Star the repository
-🍴 Fork the repository
-🐛 Report bugs
-💡 Suggest improvements
+Pyrogram
+Pyrofork
+Pyromod
+Aiohttp
+Aiofiles
+TgCrypto
 
----
-
-📜 License
-
-This project is provided for educational and personal use.
+Use the versions defined in your project's actual "requirements.txt".
 
 ---
 
-<p align="center"><b>🚀 Telegram Link Downloader Bot</b>
+"12" — SECURITY MODEL
 
-<br>Made with ❤️ using Python & Pyrogram
+Each URL request follows:
 
-</p>
+URL
+ │
+ ▼
+Generate UUID
+ │
+ ▼
+Short ID
+ │
+ ▼
+Store:
+ ├── User ID
+ └── URL
+ │
+ ▼
+Inline Button
+ │
+ ▼
+User clicks
+ │
+ ▼
+Verify User ID
+ │
+ ▼
+Start Download
+
+If another Telegram user attempts to use the button:
+
+❌ This button belongs to another user.
+
+---
+
+"13" — DISCLAIMER
+
+This project is intended for legitimate downloads and educational purposes.
+
+Only download content that you are authorized to access and download. Respect the terms of service and copyright laws applicable to the content and service you use.
+
+---
+
+<div align="center">⚡ LINK⚡DROP
+
+Simple URL → Telegram.
+
+Built with Python • Pyrogram • Aiohttp
+
+⭐ Star the project if you find it useful.
+
+</div>
