@@ -17,10 +17,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# ============================================================
-# Bot Class
-# ============================================================
-
 class Bot(Client):
 
     def __init__(self):
@@ -35,14 +31,10 @@ class Bot(Client):
         )
 
 
-# ============================================================
-# Koyeb Health Server
-# ============================================================
-
 async def health(request):
     return web.Response(
         text="OK",
-        status=200
+        status=200,
     )
 
 
@@ -54,34 +46,31 @@ async def start_health_server():
     app.router.add_get("/health", health)
 
     runner = web.AppRunner(app)
+
     await runner.setup()
 
     port = int(
         os.environ.get(
             "PORT",
-            "8080"
+            "8080",
         )
     )
 
     site = web.TCPSite(
         runner,
         "0.0.0.0",
-        port
+        port,
     )
 
     await site.start()
 
     logger.info(
         "Health server started on port %s",
-        port
+        port,
     )
 
     return runner
 
-
-# ============================================================
-# Start Bot With FloodWait Handling
-# ============================================================
 
 async def start_bot(bot):
 
@@ -97,7 +86,7 @@ async def start_bot(bot):
 
             logger.warning(
                 "FloodWait detected! Waiting %s seconds before retrying...",
-                wait_time
+                wait_time,
             )
 
             await asyncio.sleep(wait_time)
@@ -105,15 +94,11 @@ async def start_bot(bot):
         except Exception:
 
             logger.exception(
-                "Error while starting bot. Retrying in 30 seconds..."
+                "Fatal error while starting bot."
             )
 
-            await asyncio.sleep(30)
+            raise
 
-
-# ============================================================
-# Main
-# ============================================================
 
 async def main():
 
@@ -123,9 +108,13 @@ async def main():
 
     health_runner = await start_health_server()
 
+    bot_started = False
+
     try:
 
         await start_bot(bot)
+
+        bot_started = True
 
         me = await bot.get_me()
 
@@ -135,7 +124,6 @@ async def main():
         logger.info("ID: %s", me.id)
         logger.info("=" * 40)
 
-        # Keep bot running forever
         await asyncio.Event().wait()
 
     except asyncio.CancelledError:
@@ -145,33 +133,42 @@ async def main():
     except Exception:
 
         logger.exception(
-            "Fatal error while running bot"
+            "Fatal error while running bot."
         )
+
+        raise
 
     finally:
 
         logger.info("Stopping bot...")
 
-        try:
-            await bot.stop()
-        except Exception:
-            pass
+        if bot_started:
+
+            try:
+                await bot.stop()
+
+            except Exception:
+
+                logger.exception(
+                    "Error while stopping bot."
+                )
 
         try:
             await health_runner.cleanup()
+
         except Exception:
-            pass
+
+            logger.exception(
+                "Error while stopping health server."
+            )
 
         logger.info("Bot stopped.")
 
 
-# ============================================================
-# Run
-# ============================================================
-
 if __name__ == "__main__":
 
     try:
+
         asyncio.run(main())
 
     except KeyboardInterrupt:
