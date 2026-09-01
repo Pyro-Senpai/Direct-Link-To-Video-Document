@@ -10,17 +10,10 @@ from config import (
     DEFAULT_AUTO_DELETE,
 )
 
-
 logger = logging.getLogger(__name__)
 
-
-# Current auto-delete time in seconds
 auto_delete_seconds = DEFAULT_AUTO_DELETE
 
-
-# ============================================================
-# PARSE TIME
-# ============================================================
 
 def parse_time(value: str):
 
@@ -28,13 +21,6 @@ def parse_time(value: str):
 
     if value == "off":
         return 0
-
-    # Examples:
-    # 30
-    # 30s
-    # 5m
-    # 2h
-    # 1d
 
     match = re.fullmatch(
         r"(\d+(?:\.\d+)?)\s*(s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days)?",
@@ -90,10 +76,6 @@ def parse_time(value: str):
     return int(number * multiplier)
 
 
-# ============================================================
-# FORMAT TIME
-# ============================================================
-
 def format_delete_time(seconds):
 
     if seconds <= 0:
@@ -103,6 +85,7 @@ def format_delete_time(seconds):
         return f"{seconds} seconds"
 
     if seconds < 3600:
+
         minutes = seconds // 60
         remaining = seconds % 60
 
@@ -115,6 +98,7 @@ def format_delete_time(seconds):
         return f"{minutes} minutes"
 
     if seconds < 86400:
+
         hours = seconds // 3600
         remaining = seconds % 3600
         minutes = remaining // 60
@@ -128,12 +112,9 @@ def format_delete_time(seconds):
         return f"{hours} hours"
 
     days = seconds // 86400
+
     return f"{days} days"
 
-
-# ============================================================
-# ADMIN CHECK
-# ============================================================
 
 def is_admin(user_id):
 
@@ -142,10 +123,6 @@ def is_admin(user_id):
         and user_id == ADMIN_ID
     )
 
-
-# ============================================================
-# SET AUTO DELETE
-# ============================================================
 
 @Client.on_message(
     filters.command("setdelete")
@@ -158,9 +135,8 @@ async def set_delete_command(
 
     global auto_delete_seconds
 
-    # --------------------------------------------------------
-    # ADMIN ONLY
-    # --------------------------------------------------------
+    if not message.from_user:
+        return
 
     if not is_admin(
         message.from_user.id
@@ -171,10 +147,6 @@ async def set_delete_command(
         )
 
         return
-
-    # --------------------------------------------------------
-    # ARGUMENT
-    # --------------------------------------------------------
 
     if len(message.command) < 2:
 
@@ -197,9 +169,7 @@ async def set_delete_command(
 
     value = message.command[1]
 
-    seconds = parse_time(
-        value
-    )
+    seconds = parse_time(value)
 
     if seconds is None:
 
@@ -232,10 +202,6 @@ async def set_delete_command(
     )
 
 
-# ============================================================
-# GET CURRENT SETTING
-# ============================================================
-
 @Client.on_message(
     filters.command("delete")
     & filters.private
@@ -244,6 +210,9 @@ async def delete_status(
     client: Client,
     message: Message,
 ):
+
+    if not message.from_user:
+        return
 
     if not is_admin(
         message.from_user.id
@@ -262,10 +231,6 @@ async def delete_status(
     )
 
 
-# ============================================================
-# SCHEDULE MESSAGE DELETE
-# ============================================================
-
 async def schedule_delete(
     client,
     chat_id,
@@ -275,7 +240,23 @@ async def schedule_delete(
     if auto_delete_seconds <= 0:
         return
 
+    delete_after = format_delete_time(
+        auto_delete_seconds
+    )
+
     try:
+
+        notice_message = await client.send_message(
+            chat_id=chat_id,
+            text=(
+                "🗑️ **Auto Delete Enabled**\n\n"
+                "📦 Your file will be "
+                f"automatically deleted after "
+                f"`{delete_after}`.\n\n"
+                "⏳ Please save the file before "
+                "the timer expires."
+            )
+        )
 
         await asyncio.sleep(
             auto_delete_seconds
@@ -283,15 +264,40 @@ async def schedule_delete(
 
         await client.delete_messages(
             chat_id=chat_id,
-            message_ids=message_id
+            message_ids=message_id,
         )
 
         logger.info(
             "Auto-deleted message %s "
             "from chat %s",
             message_id,
-            chat_id
+            chat_id,
         )
+
+        try:
+
+            await notice_message.edit_text(
+                "✅ **File successfully deleted.**\n\n"
+                f"🗑️ Auto-delete time: "
+                f"`{delete_after}`"
+            )
+
+        except Exception:
+
+            try:
+
+                await client.send_message(
+                    chat_id=chat_id,
+                    text=(
+                        "✅ **File successfully deleted.**\n\n"
+                        "🗑️ The file has been "
+                        "removed automatically."
+                    )
+                )
+
+            except Exception:
+
+                pass
 
     except asyncio.CancelledError:
 
