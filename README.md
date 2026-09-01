@@ -1,121 +1,108 @@
 <div align="center">⚡ LINK-DROP
 
-"Advanced Telegram Link Downloader"
+Advanced Telegram Link Downloader
 
-URL → Download → Telegram
+**"URL" → "PROCESS" → "DOWNLOAD" → "TELEGRAM"
 
 <br>"Python" (https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)
 "Pyrogram" (https://img.shields.io/badge/Pyrogram-2.x-2CA5E0?style=for-the-badge)
-"Async" (https://img.shields.io/badge/Architecture-Async-00B894?style=for-the-badge)
-"Koyeb" (https://img.shields.io/badge/Deploy-Koyeb-6C5CE7?style=for-the-badge)
+"Aiohttp" (https://img.shields.io/badge/Aiohttp-Async-2C3E50?style=for-the-badge)
+"Koyeb" (https://img.shields.io/badge/Koyeb-Ready-7C3AED?style=for-the-badge)
+"Docker" (https://img.shields.io/badge/Docker-Supported-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-<br>⚡ Fast • 🧩 Modular • 🔒 Secure • ☁️ Cloud Ready
+<br>⚡ Fast  •  🧩 Modular  •  🔒 Secure  •  ☁️ Cloud Ready
 
 </div>---
 
-<div align="center">╔══════════════════════════════════════════════════════════╗
-║                                                          ║
-║                  ⚡ LINK-DROP ENGINE                     ║
-║                                                          ║
-║          DIRECT URL  ───────►  TELEGRAM FILE             ║
-║                                                          ║
-║        Built with Python + Pyrogram + Aiohttp             ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
+<div align="center">╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║                      ⚡ LINK-DROP                            ║
+║                                                              ║
+║              ADVANCED TELEGRAM DOWNLOADER                   ║
+║                                                              ║
+║          🔗 URL  ───────►  📥 FILE  ───────►  📤 TG         ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
 
-</div>🧠 01 — Overview
+</div>🧠 About
 
-LINK-DROP is an asynchronous Telegram download bot designed around a modular plugin architecture.
+LINK-DROP is an asynchronous Telegram downloader built with Python, Pyrogram and Aiohttp.
 
-The bot accepts a supported downloadable URL, creates a protected temporary request, allows the user to select the output format, downloads the content and sends the result back through Telegram.
+It is designed around a modular plugin architecture, temporary download requests, protected callback buttons and cloud-friendly health checks.
 
-┌─────────────┐
-│ 👤 USER     │
-└──────┬──────┘
-       │
-       │ 🔗 URL
-       ▼
-┌─────────────────────┐
-│ 🤖 LINK-DROP        │
-│ Request Manager     │
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│ 🆔 Temporary ID     │
-│ User + URL Mapping  │
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────────────┐
-│     📥 FORMAT SELECTOR      │
-├──────────────┬──────────────┤
-│  🎬 VIDEO    │ 📄 DOCUMENT  │
-└──────────────┴──────────────┘
-          │
-          ▼
-┌─────────────────────┐
-│ 📥 DOWNLOAD ENGINE  │
-└─────────┬───────────┘
-          │
-          ▼
-┌─────────────────────┐
-│ 📤 TELEGRAM OUTPUT │
-└─────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                    LINK-DROP                        │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  🔗 Receive URL                                     │
+│       ↓                                             │
+│  🆔 Create Request                                  │
+│       ↓                                             │
+│  🎛️ Choose Format                                  │
+│       ↓                                             │
+│  📥 Download                                        │
+│       ↓                                             │
+│  📤 Send to Telegram                                │
+│                                                     │
+└─────────────────────────────────────────────────────┘
 
 ---
 
-🚀 02 — Feature Matrix
+✨ Feature Matrix
 
 Feature| Status
-🔗 Direct URL handling| ✅
-🎬 Video output| ✅
-📄 Document output| ✅
-❌ Download cancellation| ✅
-🆔 Temporary request IDs| ✅
-🔒 User ownership validation| ✅
-⚡ Async processing| ✅
-🧩 Plugin architecture| ✅
-🌐 HTTP health server| ✅
-☁️ Koyeb deployment| ✅
-🔄 FloodWait handling| ✅
-🐳 Docker support| ✅
+🔗 URL Downloader| ✅
+🎬 Video Output| ✅
+📄 Document Output| ✅
+❌ Cancel Download| ✅
+🆔 Temporary Request ID| ✅
+🔒 User Ownership Check| ✅
+⚡ Async Architecture| ✅
+🧩 Plugin System| ✅
+🌐 Health Server| ✅
+☁️ Koyeb Ready| ✅
+🐳 Docker Support| ✅
+🔄 FloodWait Handling| ✅
+📱 Telegram Inline UI| ✅
 
 ---
 
-🏗️ 03 — Architecture
+🏗️ Architecture
 
-                         ┌──────────────────┐
-                         │    TELEGRAM      │
-                         └────────┬─────────┘
-                                  │
-                                  ▼
-                    ┌─────────────────────────┐
-                    │       PYROGRAM          │
-                    │      BOT CLIENT         │
-                    └────────────┬────────────┘
-                                 │
-                 ┌───────────────┼───────────────┐
-                 │               │               │
-                 ▼               ▼               ▼
-          ┌────────────┐  ┌────────────┐  ┌────────────┐
-          │   START    │  │ CALLBACKS  │  │   CANCEL   │
-          │   PLUGIN   │  │   PLUGIN   │  │   PLUGIN   │
-          └─────┬──────┘  └─────┬──────┘  └─────┬──────┘
-                │               │               │
-                └───────────────┼───────────────┘
-                                ▼
-                       ┌────────────────┐
-                       │    DOWNLOADER  │
-                       │     ENGINE     │
-                       └───────┬────────┘
-                               │
-                               ▼
-                         📦 FILE OUTPUT
+                         TELEGRAM
+                            │
+                            ▼
+                  ┌──────────────────┐
+                  │    PYROGRAM      │
+                  │    BOT CLIENT    │
+                  └────────┬─────────┘
+                           │
+             ┌─────────────┼─────────────┐
+             │             │             │
+             ▼             ▼             ▼
+        ┌─────────┐   ┌──────────┐   ┌─────────┐
+        │ START   │   │ CALLBACK │   │ CANCEL  │
+        │ PLUGIN  │   │ PLUGIN   │   │ PLUGIN  │
+        └────┬────┘   └────┬─────┘   └────┬────┘
+             │             │              │
+             └─────────────┼──────────────┘
+                           ▼
+                  ┌──────────────────┐
+                  │    DOWNLOADER    │
+                  │      ENGINE      │
+                  └────────┬─────────┘
+                           │
+                           ▼
+                    ┌────────────┐
+                    │ FILE DATA  │
+                    └─────┬──────┘
+                          │
+                          ▼
+                    📤 TELEGRAM
 
 ---
 
-📂 04 — Project Structure
+📂 Project Structure
 
 LINK-DROP/
 │
@@ -139,182 +126,312 @@ LINK-DROP/
     │
     └── ❌ cancel.py
 
-Responsibility Map
+Module Responsibilities
 
-bot.py
-   └── Application lifecycle + health server
-
-start.py
-   └── /start + URL processing
-
-callbacks.py
-   └── Video / Document / Cancel buttons
-
-downloader.py
-   └── Download execution
-
-cancel.py
-   └── Download cancellation
-
-config.py
-   └── Environment configuration
+┌──────────────────────────────────────────────────┐
+│ bot.py                                           │
+│ Application lifecycle + Koyeb health server     │
+├──────────────────────────────────────────────────┤
+│ config.py                                        │
+│ Environment configuration                        │
+├──────────────────────────────────────────────────┤
+│ start.py                                         │
+│ /start + URL handling                            │
+├──────────────────────────────────────────────────┤
+│ callbacks.py                                     │
+│ Video / Document / Cancel callbacks              │
+├──────────────────────────────────────────────────┤
+│ downloader.py                                    │
+│ Download execution                               │
+├──────────────────────────────────────────────────┤
+│ cancel.py                                        │
+│ Active download cancellation                     │
+└──────────────────────────────────────────────────┘
 
 ---
 
-🔐 05 — Request Security
+🔐 Request Security
 
-LINK-DROP avoids putting the complete URL into Telegram's "callback_data".
+LINK-DROP does not put the complete URL inside the callback data.
 
-Instead:
+Instead, every request receives a temporary ID.
 
-                    ORIGINAL URL
-                         │
-                         ▼
-                ┌─────────────────┐
-                │ Generate UUID    │
-                └────────┬────────┘
-                         │
-                         ▼
-                   SHORT ID
-                         │
-                         ▼
-             ┌─────────────────────┐
-             │ User ID + URL       │
-             │ stored temporarily  │
-             └─────────┬───────────┘
-                       │
-                       ▼
-                  TELEGRAM BUTTON
+                 ORIGINAL URL
+                      │
+                      ▼
+              ┌───────────────┐
+              │ Generate UUID │
+              └───────┬───────┘
+                      │
+                      ▼
+                 SHORT ID
+                      │
+             ┌────────┴────────┐
+             │                 │
+             ▼                 ▼
+          USER ID             URL
+             │                 │
+             └────────┬────────┘
+                      ▼
+                INLINE BUTTON
 
 Example:
 
 video:a91f42c8d301
 
-The callback handler verifies:
+Instead of:
 
-Clicked User ID
-       │
-       ▼
-Stored User ID
-       │
-       ├── MATCH ──► Continue
-       │
-       └── NO MATCH ──► Reject
-
-Response for an unauthorized user:
-
-╔══════════════════════════════════╗
-║ 🔒 ACCESS DENIED                 ║
-║                                  ║
-║ ❌ This button belongs to        ║
-║    another user.                 ║
-╚══════════════════════════════════╝
+video:https://example.com/very/long/download/url/file.mp4
 
 ---
 
-🎛️ 06 — Interactive UI
+🛡️ User Verification
 
-When a URL is received:
+Every callback request is checked against the original user's Telegram ID.
+
+┌──────────────────────┐
+│ Button Clicked       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Find Request ID      │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Compare User IDs     │
+└──────────┬───────────┘
+           │
+       ┌───┴────┐
+       │        │
+      MATCH    FAIL
+       │        │
+       ▼        ▼
+   DOWNLOAD   REJECT
+
+Unauthorized users receive:
+
+╔════════════════════════════════════╗
+║ 🔒 ACCESS DENIED                   ║
+╠════════════════════════════════════╣
+║ ❌ This button belongs to          ║
+║    another user.                   ║
+╚════════════════════════════════════╝
+
+---
+
+🎛️ Interactive Downloader UI
+
+After receiving a URL:
 
 ╔════════════════════════════════════════╗
-║        📥 CHOOSE DOWNLOAD FORMAT       ║
-╠══════════════════╦═════════════════════╣
-║    🎬 VIDEO      ║    📄 DOCUMENT      ║
-╠══════════════════╩═════════════════════╣
+║       📥 CHOOSE DOWNLOAD FORMAT        ║
+╠════════════════════╦═══════════════════╣
+║     🎬 VIDEO       ║   📄 DOCUMENT     ║
+╠════════════════════╩═══════════════════╣
 ║              ❌ CANCEL                  ║
 ╚════════════════════════════════════════╝
 
 🎬 Video
 
-Sends the result as a Telegram video.
+Uploads the result as a Telegram video.
 
 📄 Document
 
-Sends the result as a Telegram document.
+Uploads the result as a Telegram document.
 
 ❌ Cancel
 
-Attempts to stop the active download for that user.
+Attempts to stop the active download associated with the user.
 
 ---
 
-⚙️ 07 — Configuration
+🔄 Complete Request Lifecycle
 
-Environment variables:
+┌───────────────┐
+│ 👤 USER       │
+│ Sends URL     │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────────────┐
+│ 🚀 URL HANDLER        │
+└──────────┬────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│ 🆔 REQUEST MANAGER    │
+│                       │
+│ user_id + URL         │
+└──────────┬────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│ 🎛️ FORMAT SELECTOR   │
+└──────────┬────────────┘
+           │
+       ┌───┴────┐
+       ▼        ▼
+    VIDEO    DOCUMENT
+       │        │
+       └───┬────┘
+           ▼
+┌───────────────────────┐
+│ 🔒 USER VALIDATION    │
+└──────────┬────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│ 📥 DOWNLOAD ENGINE    │
+└──────────┬────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│ 📤 TELEGRAM UPLOAD    │
+└──────────┬────────────┘
+           │
+           ▼
+        ✅ DONE
+
+---
+
+⚙️ Environment Configuration
+
+Create these environment variables:
 
 API_ID=YOUR_API_ID
 API_HASH=YOUR_API_HASH
 BOT_TOKEN=YOUR_BOT_TOKEN
 
-Optional project-specific variables can be added through your deployment environment.
-
-🔒 Secret Policy
-
-╔════════════════════════════════════════╗
-║              🔐 SECRETS                ║
-╠════════════════════════════════════════╣
-║ ❌ Don't commit BOT_TOKEN              ║
-║ ❌ Don't commit API_HASH               ║
-║ ❌ Don't publish private credentials   ║
-║                                        ║
-║ ✅ Use environment variables           ║
-╚════════════════════════════════════════╝
+If your downloader uses additional configuration, add those variables according to your project.
 
 ---
 
-🧪 08 — Local Development
+🔒 Secret Management
 
-Clone:
+╔══════════════════════════════════════════════╗
+║                  🔐 SECURITY                 ║
+╠══════════════════════════════════════════════╣
+║                                              ║
+║ ❌ Never publish BOT_TOKEN                   ║
+║ ❌ Never publish API_HASH                    ║
+║ ❌ Never commit private credentials          ║
+║                                              ║
+║ ✅ Use environment variables                ║
+║ ✅ Use Koyeb Secrets / Variables             ║
+║ ✅ Keep local credentials outside Git        ║
+║                                              ║
+╚══════════════════════════════════════════════╝
+
+---
+
+🔑 Telegram Configuration
+
+Create Bot
+
+Open @BotFather and run:
+
+/newbot
+
+Copy the generated bot token.
+
+Get API Credentials
+
+Visit:
+
+https://my.telegram.org/
+
+Then:
+
+Login
+  ↓
+API Development Tools
+  ↓
+Create New Application
+  ↓
+API ID + API HASH
+
+---
+
+🧪 Local Installation
+
+Clone
 
 git clone YOUR_REPOSITORY_URL
 cd LINK-DROP
 
-Install:
+Install
 
 pip install -r requirements.txt
 
-Run:
+Start
 
 python bot.py
 
 Expected startup:
 
-╔════════════════════════════════════════╗
-║          🚀 LINK-DROP STARTUP         ║
-╠════════════════════════════════════════╣
-║ 🌐 Health server      : ONLINE        ║
-║ 🔌 Telegram client    : CONNECTING    ║
-║ 🤖 Bot                : STARTING      ║
-╚════════════════════════════════════════╝
+╔══════════════════════════════════════════════╗
+║              ⚡ LINK-DROP                   ║
+╠══════════════════════════════════════════════╣
+║ 🌐 Health Server : ONLINE                   ║
+║ 🔌 Telegram      : CONNECTING               ║
+║ 🤖 Bot           : STARTING                 ║
+╚══════════════════════════════════════════════╝
 
 ---
 
-☁️ 09 — Koyeb Deployment
+📦 Requirements
 
-                 ┌──────────────┐
-                 │    GitHub    │
-                 └──────┬───────┘
-                        │
-                        ▼
-                 ┌──────────────┐
-                 │    KOYEB     │
-                 ├──────────────┤
-                 │ Build        │
-                 │ Deploy       │
-                 │ Health Check │
-                 └──────┬───────┘
-                        │
-                        ▼
-                 ┌──────────────┐
-                 │  LINK-DROP   │
-                 │   ONLINE     │
-                 └──────────────┘
+Typical dependencies:
 
-Environment
+Pyrogram
+Pyrofork
+Pyromod
+Aiohttp
+Aiofiles
+TgCrypto
 
-API_ID
-API_HASH
-BOT_TOKEN
+Use the exact packages and versions defined by your own "requirements.txt".
+
+---
+
+☁️ Koyeb Deployment
+
+             ┌─────────────┐
+             │   GitHub    │
+             └──────┬──────┘
+                    │
+                    ▼
+             ┌─────────────┐
+             │    KOYEB    │
+             ├─────────────┤
+             │ Build       │
+             │ Deploy      │
+             │ Health      │
+             └──────┬──────┘
+                    │
+                    ▼
+             ┌─────────────┐
+             │  LINK-DROP  │
+             │    ONLINE   │
+             └─────────────┘
+
+Deployment Checklist
+
+┌──────────────────────────────────────────────┐
+│              ☁️ KOYEB CHECKLIST              │
+├──────────────────────────────────────────────┤
+│                                              │
+│ [✓] GitHub repository connected             │
+│ [✓] API_ID configured                       │
+│ [✓] API_HASH configured                     │
+│ [✓] BOT_TOKEN configured                    │
+│ [✓] PORT available                          │
+│ [✓] Health endpoint configured              │
+│ [✓] Start command configured                │
+│                                              │
+└──────────────────────────────────────────────┘
 
 Start Command
 
@@ -322,79 +439,42 @@ python bot.py
 
 ---
 
-🩺 10 — Health System
+🩺 Health Server
 
-LINK-DROP runs an "aiohttp" HTTP server alongside the Telegram client.
+The bot includes an "aiohttp" health server for cloud platforms.
 
-┌──────────────────────────────┐
-│        KOYEB CHECK            │
-├──────────────────────────────┤
-│                              │
-│ GET /                        │
-│ GET /health                  │
-│                              │
-│ Response:                    │
-│ HTTP 200 → OK                │
-│                              │
-└──────────────────────────────┘
+Endpoints
 
-Port selection:
+GET /
+GET /health
 
-PORT environment variable
-          │
-          ▼
-       Available?
-       /        \
-     YES         NO
-      │           │
-      ▼           ▼
-   Use PORT     8080
+Response
 
----
+HTTP/1.1 200 OK
 
-🔄 11 — Error Recovery
+OK
 
-The application treats Telegram "FloodWait" differently from unexpected startup failures.
+Port Logic
 
-                 ERROR
-                   │
-          ┌────────┴────────┐
-          │                 │
-          ▼                 ▼
-      FloodWait        Other Error
-          │                 │
-          ▼                 ▼
-      Wait + Retry      Log + Exit
-                            │
-                            ▼
-                     Cloud Restart
-
-This avoids repeatedly calling "bot.start()" on an already-connected Pyrogram client.
+             PORT
+              │
+              ▼
+       ┌───────────────┐
+       │ Environment?  │
+       └───────┬───────┘
+               │
+          ┌────┴────┐
+          │         │
+         YES        NO
+          │         │
+          ▼         ▼
+       PORT      8080
 
 ---
 
-📦 12 — Dependencies
+🐳 Docker Deployment
 
-Typical runtime dependencies:
-
-┌───────────────────────────────────┐
-│ Python 3.12                      │
-├───────────────────────────────────┤
-│ Pyrogram                         │
-│ Pyrofork                         │
-│ Pyromod                          │
-│ Aiohttp                          │
-│ Aiofiles                         │
-│ TgCrypto                         │
-└───────────────────────────────────┘
-
-Always use the exact versions specified in your project's "requirements.txt".
-
----
-
-🐳 13 — Docker
-
-Example:
+Dockerfile
 
 FROM python:3.12-slim
 
@@ -408,91 +488,124 @@ COPY . .
 
 CMD ["python", "bot.py"]
 
-Build:
+Build
 
 docker build -t link-drop .
 
-Run:
+Run
 
 docker run link-drop
 
 ---
 
-🛠️ 14 — Troubleshooting
+🔄 Error Recovery
+
+The application handles Telegram "FloodWait" separately from unexpected startup errors.
+
+                    ERROR
+                      │
+             ┌────────┴────────┐
+             │                 │
+             ▼                 ▼
+        FLOODWAIT          OTHER ERROR
+             │                 │
+             ▼                 ▼
+        WAIT + RETRY       LOG ERROR
+                               │
+                               ▼
+                          PROCESS EXIT
+                               │
+                               ▼
+                       CLOUD RESTART
+
+This prevents a failed startup from repeatedly calling "bot.start()" on an already-connected Pyrogram client.
+
+---
+
+🐛 Troubleshooting
 
 "IndentationError"
 
 ╔══════════════════════════════════════╗
-║ ❌ PYTHON INDENTATION ERROR          ║
+║ ❌ INDENTATION ERROR                 ║
 ╠══════════════════════════════════════╣
-║ Check spaces inside functions,      ║
-║ conditions and loops.               ║
+║ Check indentation inside functions, ║
+║ loops and conditional statements.   ║
 ╚══════════════════════════════════════╝
+
+Example:
+
+async def test():
+    print("Correct")
+
+---
 
 "Client is already connected"
 
-Usually means the same Pyrogram client is being started more than once.
+This usually means the same Pyrogram client is being started more than once.
 
-Make sure your application doesn't repeatedly execute:
+Avoid repeatedly executing:
 
 await bot.start()
 
-after a partial startup failure.
+on the same client instance after a partial startup failure.
+
+---
 
 "ImportError"
 
-Verify that the imported function exists in the referenced module:
+Example:
+
+ImportError: cannot import name 'start_download'
+
+Verify that the function exists:
 
 from plugins.downloader import start_download
 
-Koyeb unhealthy
+and that the file exists:
+
+plugins/downloader.py
+
+---
+
+Koyeb Health Check Failure
 
 Check:
 
-1. Application is listening on PORT
-2. Health endpoint returns HTTP 200
-3. bot.py starts successfully
-4. Environment variables are present
-5. No plugin syntax/import errors
+1. Server listens on 0.0.0.0
+2. Application uses PORT
+3. / returns HTTP 200
+4. Bot starts without Python errors
+5. Environment variables exist
+6. requirements.txt installs successfully
 
 ---
 
-📊 15 — Runtime Flow
+📈 Performance Model
 
-┌─────────────────────────────────────────────────────┐
-│                    USER REQUEST                     │
-└────────────────────────┬────────────────────────────┘
-                         ▼
-                  🔗 URL RECEIVED
-                         │
-                         ▼
-                 🆔 REQUEST CREATED
-                         │
-                         ▼
-                🎛️ FORMAT BUTTONS
-                         │
-              ┌──────────┴──────────┐
-              ▼                     ▼
-         🎬 VIDEO              📄 DOCUMENT
-              │                     │
-              └──────────┬──────────┘
-                         ▼
-                    🔐 VERIFY USER
-                         │
-                         ▼
-                    📥 DOWNLOAD
-                         │
-                         ▼
-                    📤 TELEGRAM
-                         │
-                         ▼
-                      ✅ DONE
+┌───────────────────────────────────────────┐
+│              ASYNC PIPELINE               │
+├───────────────────────────────────────────┤
+│                                           │
+│ Telegram Event                            │
+│       ↓                                   │
+│ Async Handler                             │
+│       ↓                                   │
+│ Request Lookup                            │
+│       ↓                                   │
+│ Download Task                             │
+│       ↓                                   │
+│ Telegram Upload                           │
+│                                           │
+└───────────────────────────────────────────┘
+
+The application is designed around asynchronous operations to avoid blocking the Telegram event loop during normal I/O operations.
 
 ---
 
-🧩 16 — Extensibility
+🧩 Extensible Plugin System
 
-The plugin structure makes it easy to add future modules:
+The architecture makes it easy to add additional features.
 
 plugins/
 │
@@ -501,60 +614,114 @@ plugins/
 ├── downloader.py
 ├── cancel.py
 │
-├── history.py       ← future
-├── queue.py         ← future
-├── admin.py         ← future
-├── settings.py      ← future
-└── statistics.py    ← future
+├── admin.py          ← Future
+├── queue.py          ← Future
+├── history.py        ← Future
+├── statistics.py     ← Future
+├── settings.py       ← Future
+└── progress.py       ← Future
 
-Possible future additions:
+Potential extensions:
 
-⚡ Download Queue
-📊 Statistics
 👑 Admin Panel
+📊 Statistics
 📜 Download History
 ⚙️ User Settings
-📡 Progress Updates
-🗃️ Database Storage
+📡 Live Progress
+📥 Download Queue
+🗃️ Persistent Database
+🚦 Rate Limiting
 
 ---
 
-⚠️ 17 — Responsible Use
+🗺️ Roadmap
 
-LINK-DROP is intended for legitimate downloads.
+╔══════════════════════════════════════════════╗
+║                 🚧 ROADMAP                   ║
+╠══════════════════════════════════════════════╣
+║                                              ║
+║ ✅ Core Downloader                           ║
+║ ✅ Video / Document                          ║
+║ ✅ Cancel System                             ║
+║ ✅ Callback Security                         ║
+║ ✅ Koyeb Health Server                       ║
+║                                              ║
+║ 🔲 Persistent Download History               ║
+║ 🔲 Advanced Progress UI                      ║
+║ 🔲 Queue Management                           ║
+║ 🔲 Admin Dashboard                           ║
+║ 🔲 Usage Statistics                          ║
+║ 🔲 User Settings                             ║
+║                                              ║
+╚══════════════════════════════════════════════╝
 
-Only download content you are authorized to access or download.
+---
+
+🤝 Contributing
+
+Contributions are welcome.
+
+Fork
+  ↓
+Create Branch
+  ↓
+Make Changes
+  ↓
+Test
+  ↓
+Commit
+  ↓
+Pull Request
+
+Example:
+
+git checkout -b feature/my-feature
+git add .
+git commit -m "Add my feature"
+git push origin feature/my-feature
+
+Then open a Pull Request.
+
+---
+
+⚠️ Responsible Use
+
+LINK-DROP is intended for legitimate downloads and educational purposes.
+
+Only download content that you are authorized to access.
 
 Respect:
 
-- Copyright
-- Website terms
-- Content licenses
-- Telegram limits
-- Service provider policies
+Copyright
+Terms of Service
+Content Licenses
+Telegram Policies
+Service Provider Policies
+
+Do not use the project to bypass access controls or security mechanisms.
 
 ---
 
-📝 18 — License
+📜 License
 
 This project is provided for educational and personal use.
 
-You are responsible for how you deploy and use the software.
+See the repository license for the applicable terms.
 
 ---
 
-<div align="center">╔══════════════════════════════════════════════════╗
-║                                                  ║
-║                 ⚡ LINK-DROP                     ║
-║                                                  ║
-║          URL  ───────────────►  TELEGRAM         ║
-║                                                  ║
-║          Python • Pyrogram • Aiohttp             ║
-║                                                  ║
-╚══════════════════════════════════════════════════╝
+<div align="center">╔══════════════════════════════════════════════════════╗
+║                                                      ║
+║                    ⚡ LINK-DROP                       ║
+║                                                      ║
+║              URL ───────► TELEGRAM                  ║
+║                                                      ║
+║        Built with Python • Pyrogram • Aiohttp       ║
+║                                                      ║
+╚══════════════════════════════════════════════════════╝
 
-Built for Telegram. Built for speed. ⚡
+⚡ Simple Input. Powerful Processing. Clean Output.
 
-⭐ Star the repository if you find it useful.
+⭐ Star the repository if LINK-DROP helped you.
 
 </div>
