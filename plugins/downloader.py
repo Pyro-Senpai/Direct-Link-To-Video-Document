@@ -444,8 +444,8 @@ async def download_file(
                 ):
 
                     if (
-                        user_id
-                        not in active_downloads
+                        user_id not in active_downloads
+                        or active_downloads[user_id].get("cancelled", False)
                     ):
                         raise asyncio.CancelledError
 
