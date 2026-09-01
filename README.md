@@ -69,6 +69,7 @@ Send File to Telegram
 📂 Project Structure
 
 <div>
+```bash
 ├── bot.py
 ├── config.py
 ├── requirements.txt
@@ -80,7 +81,7 @@ Send File to Telegram
     ├── callbacks.py
     ├── downloader.py
     └── cancel.py
-
+```
 </div>
 
 🧩 Architecture
