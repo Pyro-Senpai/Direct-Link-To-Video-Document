@@ -246,6 +246,40 @@ def progress_keyboard():
     )
 
 
+def optimize_video_for_streaming(filepath):
+    """Moves moov atom to the start of the file for proper Telegram streaming/duration parsing."""
+    temp_output = filepath.replace(".mp4", "_optimized.mp4")
+    if temp_output == filepath:
+        temp_output = filepath + ".mp4"
+        
+    try:
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i",
+                filepath,
+                "-c",
+                "copy",
+                "-movflags",
+                "+faststart",
+                temp_output,
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=120,
+        )
+        if result.returncode == 0 and os.path.exists(temp_output):
+            os.replace(temp_output, filepath)
+    except Exception:
+        logger.exception("Failed to optimize video moov atom.")
+        if os.path.exists(temp_output):
+            try:
+                os.remove(temp_output)
+            except:
+                pass
+
+
 def get_video_metadata(filepath):
     try:
         result = subprocess.run(
@@ -689,6 +723,7 @@ async def start_download(
             )
 
         if mode == "video":
+            optimize_video_for_streaming(filepath)
 
             thumbnail_path = (
                 await get_user_thumbnail(
