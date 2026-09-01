@@ -1,747 +1,447 @@
-import os
-import re
+import uuid
 import time
-import asyncio
 import logging
-import subprocess
-import json
 
-import aiohttp
-
-from urllib.parse import urlparse, unquote
-
-from pyrogram import Client
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-
-from config import (
-    DOWNLOAD_DIR,
-    MAX_FILE_SIZE,
-    DEFAULT_CAPTION,
+from pyrogram import Client, filters
+from pyrogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    CallbackQuery,
+    Message,
 )
 
-from database.database import save_download
+from plugins.downloader import (
+    start_download,
+    cancel_download,
+    active_downloads,
+    download_status,
+    upload_status,
+)
 
 logger = logging.getLogger(__name__)
 
-active_downloads = {}
-
-CHUNK_SIZE = 1024 * 1024
-PROGRESS_INTERVAL = 3
+pending_downloads = {}
 
 
-def format_bytes(size):
-    if not size or size <= 0:
-        return "0 B"
+def create_download_request(
+    user_id: int,
+    url: str
+) -> str:
 
-    size = float(size)
+    short_id = uuid.uuid4().hex[:12]
 
-    units = [
-        "B",
-        "KB",
-        "MB",
-        "GB",
-        "TB",
-    ]
+    pending_downloads[short_id] = {
+        "user_id": user_id,
+        "url": url,
+    }
 
-    index = 0
-
-    while size >= 1024 and index < len(units) - 1:
-        size /= 1024
-        index += 1
-
-    return f"{size:.2f} {units[index]}"
+    return short_id
 
 
-def format_time(seconds):
-    if seconds is None or seconds <= 0:
-        return "00:00"
+def get_download_request(
+    short_id: str
+):
 
-    seconds = int(seconds)
-
-    hours, remainder = divmod(seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-
-    if hours:
-        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-
-    return f"{minutes:02d}:{seconds:02d}"
-
-
-def safe_filename(filename):
-    filename = unquote(filename)
-    filename = os.path.basename(filename)
-
-    filename = re.sub(
-        r'[<>:"/\\|?*\x00-\x1F]',
-        "_",
-        filename,
-    )
-
-    filename = filename.strip(" .")
-
-    if not filename:
-        filename = "downloaded_file"
-
-    return filename[:200]
-
-
-def filename_from_url(url):
-    try:
-        parsed = urlparse(url)
-
-        filename = os.path.basename(
-            parsed.path.rstrip("/")
-        )
-
-        if filename:
-            return safe_filename(filename)
-
-    except Exception:
-        pass
-
-    return "downloaded_file"
-
-
-def progress_bar(current, total, length=12):
-    if total <= 0:
-        return "○" * length
-
-    percentage = current / total
-
-    filled = int(percentage * length)
-
-    filled = max(
-        0,
-        min(filled, length),
-    )
-
-    return (
-        "●" * filled
-        + "○" * (length - filled)
+    return pending_downloads.get(
+        short_id
     )
 
 
-def download_status(current, total, start_time):
-    elapsed = time.time() - start_time
+def delete_download_request(
+    short_id: str
+):
 
-    if elapsed <= 0:
-        elapsed = 0.1
-
-    speed = current / elapsed
-
-    if total > 0:
-        percentage = (current / total) * 100
-        remaining = total - current
-
-        eta = (
-            remaining / speed
-            if speed > 0
-            else 0
-        )
-
-        bar = progress_bar(
-            current,
-            total,
-        )
-
-        return (
-            "📥 **Downloading...**\n\n"
-            f"`{bar}` **{percentage:.1f}%**\n\n"
-            f"📦 **Size:** "
-            f"`{format_bytes(current)}` / "
-            f"`{format_bytes(total)}`\n"
-            f"🚀 **Speed:** "
-            f"`{format_bytes(speed)}/s`\n"
-            f"⏳ **ETA:** "
-            f"`{format_time(eta)}`"
-        )
-
-    return (
-        "📥 **Downloading...**\n\n"
-        f"📦 **Downloaded:** "
-        f"`{format_bytes(current)}`\n"
-        f"🚀 **Speed:** "
-        f"`{format_bytes(speed)}/s`\n"
-        "⏳ **ETA:** `Calculating...`"
+    pending_downloads.pop(
+        short_id,
+        None
     )
 
 
-def upload_status(current, total, start_time):
-    elapsed = time.time() - start_time
+def format_keyboard(
+    short_id: str
+):
 
-    if elapsed <= 0:
-        elapsed = 0.1
-
-    speed = current / elapsed
-
-    if total > 0:
-        percentage = (current / total) * 100
-        remaining = total - current
-
-        eta = (
-            remaining / speed
-            if speed > 0
-            else 0
-        )
-
-        bar = progress_bar(
-            current,
-            total,
-        )
-
-        return (
-            "📤 **Uploading...**\n\n"
-            f"`{bar}` **{percentage:.1f}%**\n\n"
-            f"📦 **Size:** "
-            f"`{format_bytes(current)}` / "
-            f"`{format_bytes(total)}`\n"
-            f"🚀 **Speed:** "
-            f"`{format_bytes(speed)}/s`\n"
-            f"⏳ **ETA:** "
-            f"`{format_time(eta)}`"
-        )
-
-    return (
-        "📤 **Uploading...**\n\n"
-        f"📦 **Uploaded:** "
-        f"`{format_bytes(current)}`\n"
-        f"🚀 **Speed:** "
-        f"`{format_bytes(speed)}/s`\n"
-        "⏳ **ETA:** `Calculating...`"
-    )
-
-
-def progress_keyboard():
     return InlineKeyboardMarkup(
         [
             [
                 InlineKeyboardButton(
-                    "🔄 Refresh",
-                    callback_data="refresh_download",
+                    "🎬 Video",
+                    callback_data=f"video:{short_id}"
                 ),
                 InlineKeyboardButton(
+                    "📄 Document",
+                    callback_data=f"document:{short_id}"
+                )
+            ],
+            [
+                InlineKeyboardButton(
                     "❌ Cancel",
-                    callback_data="cancel_download",
-                ),
+                    callback_data="cancel_download"
+                )
             ]
         ]
     )
 
 
-def get_video_metadata(filepath):
-    try:
-        result = subprocess.run(
+def progress_keyboard():
+
+    return InlineKeyboardMarkup(
+        [
             [
-                "ffprobe",
-                "-v",
-                "error",
-                "-show_entries",
-                "format=duration",
-                "-show_entries",
-                "stream=width,height,codec_type",
-                "-of",
-                "json",
-                filepath,
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=30,
-        )
-
-        if result.returncode != 0:
-            return 0, 0, 0
-
-        data = json.loads(result.stdout)
-
-        duration = 0
-        width = 0
-        height = 0
-
-        duration_value = (
-            data
-            .get("format", {})
-            .get("duration")
-        )
-
-        if duration_value:
-            try:
-                duration = int(
-                    float(duration_value)
+                InlineKeyboardButton(
+                    "🔄 Refresh",
+                    callback_data="refresh_download"
+                ),
+                InlineKeyboardButton(
+                    "❌ Cancel",
+                    callback_data="cancel_download"
                 )
-            except (
-                ValueError,
-                TypeError,
-            ):
-                duration = 0
-
-        for stream in data.get(
-            "streams",
-            [],
-        ):
-            if stream.get("codec_type") == "video":
-                width = int(
-                    stream.get("width") or 0
-                )
-
-                height = int(
-                    stream.get("height") or 0
-                )
-
-                break
-
-        return duration, width, height
-
-    except Exception:
-        logger.exception(
-            "ffprobe error"
-        )
-
-        return 0, 0, 0
-
-
-async def download_file(
-    url,
-    filepath,
-    status_message,
-    user_id,
-):
-    timeout = aiohttp.ClientTimeout(
-        total=None,
-        connect=30,
-        sock_read=120,
+            ]
+        ]
     )
 
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "*/*",
-    }
 
-    downloaded = 0
-    total_size = 0
+async def show_format_buttons(
+    message: Message,
+    url: str
+):
 
-    start_time = time.time()
-    last_update = 0
+    if not message.from_user:
+        return
 
-    os.makedirs(
-        os.path.dirname(filepath),
-        exist_ok=True,
+    short_id = create_download_request(
+        user_id=message.from_user.id,
+        url=url
     )
 
-    async with aiohttp.ClientSession(
-        timeout=timeout,
-        headers=headers,
-    ) as session:
-
-        async with session.get(
-            url,
-            allow_redirects=True,
-        ) as response:
-
-            if response.status != 200:
-                raise RuntimeError(
-                    f"HTTP error: {response.status}"
-                )
-
-            content_length = response.headers.get(
-                "Content-Length"
-            )
-
-            if content_length:
-                try:
-                    total_size = int(
-                        content_length
-                    )
-                except ValueError:
-                    total_size = 0
-
-            if total_size > MAX_FILE_SIZE:
-                raise RuntimeError(
-                    "File is larger than the configured limit."
-                )
-
-            with open(filepath, "wb") as output:
-
-                async for chunk in response.content.iter_chunked(
-                    CHUNK_SIZE
-                ):
-
-                    if user_id not in active_downloads:
-                        raise asyncio.CancelledError
-
-                    if not chunk:
-                        continue
-
-                    downloaded += len(chunk)
-
-                    if downloaded > MAX_FILE_SIZE:
-                        raise RuntimeError(
-                            "File exceeded the configured limit."
-                        )
-
-                    output.write(chunk)
-
-                    active_downloads[user_id][
-                        "downloaded"
-                    ] = downloaded
-
-                    active_downloads[user_id][
-                        "total"
-                    ] = total_size
-
-                    active_downloads[user_id][
-                        "start_time"
-                    ] = start_time
-
-                    active_downloads[user_id][
-                        "phase"
-                    ] = "download"
-
-                    now = time.time()
-
-                    if (
-                        now - last_update
-                        >= PROGRESS_INTERVAL
-                    ):
-                        try:
-                            await status_message.edit_text(
-                                download_status(
-                                    downloaded,
-                                    total_size,
-                                    start_time,
-                                ),
-                                reply_markup=progress_keyboard(),
-                            )
-                        except Exception:
-                            pass
-
-                        last_update = now
-
-    return downloaded
+    await message.reply_text(
+        "📥 **Choose download format:**",
+        reply_markup=format_keyboard(
+            short_id
+        )
+    )
 
 
-async def upload_progress(
-    current,
-    total,
-    message,
-    start_time,
-    state,
-    user_id,
+@Client.on_callback_query(
+    filters.regex(
+        r"^(video|document):"
+    )
+)
+async def format_callback(
+    client: Client,
+    callback_query: CallbackQuery
 ):
-    active = active_downloads.get(user_id)
 
-    if not active:
-        return
-
-    active["uploaded"] = current
-    active["upload_total"] = total
-    active["upload_start"] = start_time
-    active["phase"] = "upload"
-
-    now = time.time()
-
-    if (
-        now - state["last_update"]
-        < PROGRESS_INTERVAL
-    ):
-        return
-
-    state["last_update"] = now
+    user_id = callback_query.from_user.id
+    data = callback_query.data
 
     try:
-        await message.edit_text(
-            upload_status(
-                current,
-                total,
-                start_time,
-            ),
-            reply_markup=progress_keyboard(),
-        )
-    except Exception:
-        pass
 
-
-async def start_download(
-    client,
-    message,
-    user_id,
-    url,
-    mode,
-):
-    if user_id in active_downloads:
-        await message.edit_text(
-            "⚠️ **You already have a download running.**\n\n"
-            "Use the **Cancel** button."
+        mode, short_id = data.split(
+            ":",
+            1
         )
+
+    except ValueError:
+
+        await callback_query.answer(
+            "Invalid request.",
+            show_alert=True
+        )
+
         return
 
-    if mode not in (
-        "video",
-        "document",
-    ):
-        await message.edit_text(
-            "❌ **Invalid download mode.**"
-        )
-        return
-
-    filename = filename_from_url(url)
-
-    timestamp = int(time.time())
-
-    filepath = os.path.join(
-        DOWNLOAD_DIR,
-        f"{user_id}_{timestamp}_{filename}",
+    request = get_download_request(
+        short_id
     )
 
-    active_downloads[user_id] = {
-        "url": url,
-        "filepath": filepath,
-        "mode": mode,
-        "message_id": message.id,
-        "phase": "checking",
-        "downloaded": 0,
-        "total": 0,
-        "uploaded": 0,
-        "upload_total": 0,
-        "start_time": time.time(),
-        "upload_start": None,
-    }
+    if not request:
+
+        await callback_query.answer(
+            "This request has expired.",
+            show_alert=True
+        )
+
+        return
+
+    if request["user_id"] != user_id:
+
+        await callback_query.answer(
+            "This button belongs to another user.",
+            show_alert=True
+        )
+
+        return
+
+    url = request["url"]
+
+    delete_download_request(
+        short_id
+    )
+
+    await callback_query.answer(
+        "Starting..."
+    )
+
+    await start_download(
+        client=client,
+        message=callback_query.message,
+        user_id=user_id,
+        url=url,
+        mode=mode
+    )
+
+
+@Client.on_callback_query(
+    filters.regex(
+        r"^refresh_download$"
+    )
+)
+async def refresh_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    user_id = callback_query.from_user.id
+
+    download = active_downloads.get(
+        user_id
+    )
+
+    if not download:
+
+        await callback_query.answer(
+            "No active download.",
+            show_alert=True
+        )
+
+        return
+
+    phase = download.get(
+        "phase",
+        "download"
+    )
 
     try:
-        await message.edit_text(
-            "🔍 **Checking link...**\n\n"
-            f"📁 **Mode:** `{mode.title()}`",
-            reply_markup=progress_keyboard(),
-        )
 
-        await download_file(
-            url=url,
-            filepath=filepath,
-            status_message=message,
-            user_id=user_id,
-        )
+        if phase == "download":
 
-        if not os.path.exists(filepath):
-            raise RuntimeError(
-                "Downloaded file not found."
+            current = download.get(
+                "downloaded",
+                0
             )
 
-        actual_size = os.path.getsize(
-            filepath
-        )
-
-        if actual_size <= 0:
-            raise RuntimeError(
-                "Downloaded file is empty."
+            total = download.get(
+                "total",
+                0
             )
 
-        if actual_size > MAX_FILE_SIZE:
-            raise RuntimeError(
-                "File is larger than the configured limit."
+            start_time = download.get(
+                "start_time",
+                time.time()
             )
 
-        upload_start = time.time()
-
-        upload_state = {
-            "last_update": 0,
-        }
-
-        active_downloads[user_id][
-            "phase"
-        ] = "upload"
-
-        active_downloads[user_id][
-            "upload_start"
-        ] = upload_start
-
-        await message.edit_text(
-            "📤 **Uploading...**\n\n"
-            "📊 **Preparing file...**\n"
-            f"📦 **File Size:** "
-            f"`{format_bytes(actual_size)}`\n"
-            "🚀 **Speed:** `Calculating...`\n"
-            "⏳ **ETA:** `Calculating...`",
-            reply_markup=progress_keyboard(),
-        )
-
-        if mode == "video":
-            (
-                duration,
-                width,
-                height,
-            ) = get_video_metadata(filepath)
-
-            async def progress(
+            text = download_status(
                 current,
                 total,
-            ):
-                await upload_progress(
-                    current,
-                    total,
-                    message,
-                    upload_start,
-                    upload_state,
-                    user_id,
-                )
+                start_time
+            )
 
-            sent_message = await client.send_video(
-                chat_id=user_id,
-                video=filepath,
-                caption=DEFAULT_CAPTION,
-                duration=duration,
-                width=width,
-                height=height,
-                supports_streaming=True,
-                progress=progress,
+        elif phase == "upload":
+
+            current = download.get(
+                "uploaded",
+                0
+            )
+
+            total = download.get(
+                "upload_total",
+                0
+            )
+
+            start_time = download.get(
+                "upload_start"
+            )
+
+            if not start_time:
+                start_time = time.time()
+
+            text = upload_status(
+                current,
+                total,
+                start_time
             )
 
         else:
-            async def progress(
-                current,
-                total,
-            ):
-                await upload_progress(
-                    current,
-                    total,
-                    message,
-                    upload_start,
-                    upload_state,
-                    user_id,
-                )
 
-            sent_message = await client.send_document(
-                chat_id=user_id,
-                document=filepath,
-                caption=DEFAULT_CAPTION,
-                progress=progress,
+            text = (
+                "🔍 **Checking link...**"
             )
 
-        try:
-            await save_download(
-                user_id=user_id,
-                url=url,
-                filename=filename,
-                file_type=mode,
-                file_size=actual_size,
-            )
-        except Exception:
-            logger.exception(
-                "Database save failed."
-            )
+        await callback_query.message.edit_text(
+            text,
+            reply_markup=progress_keyboard()
+        )
 
-        try:
-            from plugins.autodelete import schedule_delete
-
-            asyncio.create_task(
-                schedule_delete(
-                    client=client,
-                    chat_id=user_id,
-                    message_id=sent_message.id,
-                )
-            )
-
-        except Exception:
-            logger.exception(
-                "Could not schedule auto-delete."
-            )
-
-        try:
-            await message.edit_text(
-                "✅ **Completed!**\n\n"
-                f"📦 **File Size:** "
-                f"`{format_bytes(actual_size)}`\n"
-                f"📁 **Mode:** "
-                f"`{mode.title()}`"
-            )
-        except Exception:
-            pass
-
-        await asyncio.sleep(2)
-
-        try:
-            await message.delete()
-        except Exception:
-            pass
-
-    except asyncio.CancelledError:
-        try:
-            await message.edit_text(
-                "❌ **Download cancelled.**"
-            )
-        except Exception:
-            pass
+        await callback_query.answer(
+            "🔄 Refreshed"
+        )
 
     except Exception as error:
-        logger.exception(
-            "Download failed."
+
+        logger.warning(
+            "Refresh failed: %s",
+            error
         )
 
-        error_text = str(error)
-
-        if len(error_text) > 800:
-            error_text = (
-                error_text[:800]
-                + "..."
-            )
-
-        try:
-            await message.edit_text(
-                "❌ **Download failed.**\n\n"
-                f"`{error_text}`"
-            )
-        except Exception:
-            pass
-
-    finally:
-        active_downloads.pop(
-            user_id,
-            None,
+        await callback_query.answer(
+            "Unable to refresh.",
+            show_alert=True
         )
 
-        if os.path.exists(filepath):
-            try:
-                os.remove(filepath)
 
-                logger.info(
-                    "Deleted temporary file: %s",
-                    filepath,
-                )
+@Client.on_callback_query(
+    filters.regex(
+        r"^cancel_download$"
+    )
+)
+async def cancel_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
 
-            except Exception:
-                logger.exception(
-                    "Could not delete temporary file."
-                )
+    user_id = callback_query.from_user.id
 
-
-async def cancel_download(user_id):
-    if user_id not in active_downloads:
-        return False
-
-    download = active_downloads.get(user_id)
-
-    download["cancelled"] = True
-
-    filepath = download.get(
-        "filepath"
+    await callback_query.answer(
+        "❌ Cancelling..."
     )
 
-    active_downloads.pop(
-        user_id,
-        None,
+    cancelled = await cancel_download(
+        user_id
     )
 
-    if filepath and os.path.exists(filepath):
+    if cancelled:
+
         try:
-            os.remove(filepath)
 
-            logger.info(
-                "Deleted cancelled file: %s",
-                filepath,
+            await callback_query.message.edit_text(
+                "❌ **Download cancelled.**"
             )
 
-        except Exception:
-            logger.exception(
-                "Could not delete cancelled file."
+        except Exception as error:
+
+            logger.warning(
+                "Failed to edit cancel message: %s",
+                error
             )
 
-    return True
+    else:
+
+        try:
+
+            await callback_query.message.edit_text(
+                "ℹ️ **No active download.**"
+            )
+
+        except Exception as error:
+
+            logger.warning(
+                "Failed to edit cancel message: %s",
+                error
+            )
+
+
+@Client.on_callback_query(
+    filters.regex(
+        r"^close_start$"
+    )
+)
+async def close_start_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    await callback_query.answer()
+
+    try:
+
+        await callback_query.message.delete()
+
+    except Exception as error:
+
+        logger.warning(
+            "Failed to close start message: %s",
+            error
+        )
+
+
+@Client.on_callback_query(
+    filters.regex(
+        r"^close_help$"
+    )
+)
+async def close_help_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    await callback_query.answer()
+
+    try:
+
+        await callback_query.message.delete()
+
+    except Exception as error:
+
+        logger.warning(
+            "Failed to close help message: %s",
+            error
+        )
+
+
+@Client.on_callback_query(
+    filters.regex(
+        r"^close_about$"
+    )
+)
+async def close_about_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    await callback_query.answer()
+
+    try:
+
+        await callback_query.message.delete()
+
+    except Exception as error:
+
+        logger.warning(
+            "Failed to close about message: %s",
+            error
+        )
+
+
+@Client.on_callback_query(
+    filters.regex(
+        r"^back_start$"
+    )
+)
+async def back_start_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    await callback_query.answer()
+
+    try:
+
+        await callback_query.message.delete()
+
+    except Exception as error:
+
+        logger.warning(
+            "Failed to go back: %s",
+            error
+        )
