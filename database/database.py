@@ -1,5 +1,3 @@
-# database/database.py
-
 import logging
 from datetime import datetime, timezone
 
@@ -10,10 +8,6 @@ from config import MONGO_URI, DATABASE_NAME
 
 logger = logging.getLogger(__name__)
 
-
-# ============================================================
-# MongoDB Connection
-# ============================================================
 
 mongo_client = AsyncIOMotorClient(
     MONGO_URI,
@@ -26,25 +20,19 @@ users_collection = db["users"]
 downloads_collection = db["downloads"]
 
 
-# ============================================================
-# Initialize Database
-# ============================================================
-
 async def init_db():
-    """Connect to MongoDB and create indexes."""
-
     try:
         await mongo_client.admin.command("ping")
 
-        logger.info("MongoDB connected successfully.")
+        logger.info(
+            "MongoDB connected successfully."
+        )
 
-        # Unique user ID
         await users_collection.create_index(
             "user_id",
             unique=True
         )
 
-        # Download history indexes
         await downloads_collection.create_index(
             "user_id"
         )
@@ -53,7 +41,9 @@ async def init_db():
             "created_at"
         )
 
-        logger.info("MongoDB indexes initialized.")
+        logger.info(
+            "MongoDB indexes initialized."
+        )
 
     except Exception as e:
         logger.error(
@@ -63,21 +53,17 @@ async def init_db():
         raise
 
 
-# ============================================================
-# User Functions
-# ============================================================
-
 async def add_user(
     user_id: int,
     username: str = None,
     first_name: str = None
 ):
-    """Add a new user or update an existing user."""
-
     now = datetime.now(timezone.utc)
 
     await users_collection.update_one(
-        {"user_id": user_id},
+        {
+            "user_id": user_id
+        },
         {
             "$set": {
                 "username": username,
@@ -87,7 +73,9 @@ async def add_user(
             "$setOnInsert": {
                 "user_id": user_id,
                 "created_at": now,
-                "total_downloads": 0
+                "total_downloads": 0,
+                "thumbnail": None,
+                "caption": None
             }
         },
         upsert=True
@@ -95,40 +83,123 @@ async def add_user(
 
 
 async def get_user(user_id: int):
-    """Get user information."""
-
     return await users_collection.find_one(
-        {"user_id": user_id}
+        {
+            "user_id": user_id
+        }
     )
 
 
 async def user_exists(user_id: int) -> bool:
-    """Check if a user exists."""
-
     user = await users_collection.find_one(
-        {"user_id": user_id},
-        {"_id": 1}
+        {
+            "user_id": user_id
+        },
+        {
+            "_id": 1
+        }
     )
 
     return user is not None
 
 
-async def increment_downloads(user_id: int):
-    """Increase user's download count."""
-
+async def increment_downloads(
+    user_id: int
+):
     await users_collection.update_one(
-        {"user_id": user_id},
+        {
+            "user_id": user_id
+        },
         {
             "$inc": {
                 "total_downloads": 1
             }
-        }
+        },
+        upsert=True
     )
 
 
-# ============================================================
-# Download History
-# ============================================================
+async def set_thumbnail(
+    user_id: int,
+    file_id: str = None
+):
+    await users_collection.update_one(
+        {
+            "user_id": user_id
+        },
+        {
+            "$set": {
+                "thumbnail": file_id,
+                "updated_at": datetime.now(timezone.utc)
+            },
+            "$setOnInsert": {
+                "user_id": user_id,
+                "created_at": datetime.now(timezone.utc),
+                "total_downloads": 0
+            }
+        },
+        upsert=True
+    )
+
+
+async def get_thumbnail(
+    user_id: int
+):
+    user = await users_collection.find_one(
+        {
+            "user_id": user_id
+        },
+        {
+            "thumbnail": 1
+        }
+    )
+
+    if not user:
+        return None
+
+    return user.get("thumbnail")
+
+
+async def set_caption(
+    user_id: int,
+    caption: str = None
+):
+    await users_collection.update_one(
+        {
+            "user_id": user_id
+        },
+        {
+            "$set": {
+                "caption": caption,
+                "updated_at": datetime.now(timezone.utc)
+            },
+            "$setOnInsert": {
+                "user_id": user_id,
+                "created_at": datetime.now(timezone.utc),
+                "total_downloads": 0
+            }
+        },
+        upsert=True
+    )
+
+
+async def get_caption(
+    user_id: int
+):
+    user = await users_collection.find_one(
+        {
+            "user_id": user_id
+        },
+        {
+            "caption": 1
+        }
+    )
+
+    if not user:
+        return None
+
+    return user.get("caption")
+
 
 async def save_download(
     user_id: int,
@@ -137,8 +208,6 @@ async def save_download(
     file_type: str,
     file_size: int = 0
 ):
-    """Save download information."""
-
     download = {
         "user_id": user_id,
         "url": url,
@@ -152,7 +221,9 @@ async def save_download(
         download
     )
 
-    await increment_downloads(user_id)
+    await increment_downloads(
+        user_id
+    )
 
     return result.inserted_id
 
@@ -161,12 +232,17 @@ async def get_download_history(
     user_id: int,
     limit: int = 10
 ):
-    """Get user's latest downloads."""
-
     cursor = (
         downloads_collection
-        .find({"user_id": user_id})
-        .sort("created_at", -1)
+        .find(
+            {
+                "user_id": user_id
+            }
+        )
+        .sort(
+            "created_at",
+            -1
+        )
         .limit(limit)
     )
 
@@ -175,29 +251,15 @@ async def get_download_history(
     )
 
 
-# ============================================================
-# Statistics
-# ============================================================
-
 async def get_user_count() -> int:
-    """Get total number of users."""
-
     return await users_collection.count_documents({})
 
 
 async def get_download_count() -> int:
-    """Get total number of downloads."""
-
     return await downloads_collection.count_documents({})
 
 
-# ============================================================
-# Close MongoDB
-# ============================================================
-
 async def close_db():
-    """Close MongoDB connection."""
-
     mongo_client.close()
 
     logger.info(
