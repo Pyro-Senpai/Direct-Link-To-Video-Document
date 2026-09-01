@@ -121,7 +121,7 @@ async def increment_downloads(
 
 async def set_thumbnail(
     user_id: int,
-    file_id: str = None
+    file_id = None
 ):
     await users_collection.update_one(
         {
@@ -142,6 +142,13 @@ async def set_thumbnail(
     )
 
 
+async def save_thumbnail(
+    user_id: int,
+    file_id = None
+):
+    await set_thumbnail(user_id, file_id)
+
+
 async def get_thumbnail(
     user_id: int
 ):
@@ -158,6 +165,22 @@ async def get_thumbnail(
         return None
 
     return user.get("thumbnail")
+
+
+async def delete_thumbnail(
+    user_id: int
+):
+    await users_collection.update_one(
+        {
+            "user_id": user_id
+        },
+        {
+            "$set": {
+                "thumbnail": None,
+                "updated_at": datetime.now(timezone.utc)
+            }
+        }
+    )
 
 
 async def set_caption(
