@@ -67,11 +67,16 @@ async def start_command(
 ):
     user = message.from_user
     
-    formatted_text = START_TEXT.format(
-        first_name=user.first_name or "",
-        last_name=user.last_name or "",
-        mention=user.mention
-    )
+    try:
+        formatted_text = START_TEXT.format(
+            first_name=user.first_name or "",
+            firstname=user.first_name or "",
+            last_name=user.last_name or "",
+            lastname=user.last_name or "",
+            mention=user.mention
+        )
+    except KeyError:
+        formatted_text = START_TEXT
 
     keyboard = start_keyboard()
 
@@ -147,11 +152,16 @@ async def back_to_start(
 ):
     user = callback_query.from_user
     
-    formatted_text = START_TEXT.format(
-        first_name=user.first_name or "",
-        last_name=user.last_name or "",
-        mention=user.mention
-    )
+    try:
+        formatted_text = START_TEXT.format(
+            first_name=user.first_name or "",
+            firstname=user.first_name or "",
+            last_name=user.last_name or "",
+            lastname=user.last_name or "",
+            mention=user.mention
+        )
+    except KeyError:
+        formatted_text = START_TEXT
 
     try:
 
@@ -203,14 +213,14 @@ async def url_handler(
 
     url = message.text.strip()
 
-    if not re.match(
+   if not re.match(
         r"^https?://",
         url,
         re.IGNORECASE
     ):
 
         await message.reply_text(
-            "❌ **Please send a valid HTTP/HTTPS URL.**"
+            "❌ Please send a valid HTTP/HTTPS URL."
         )
 
         return
@@ -220,12 +230,12 @@ async def url_handler(
     ) > 150:
 
         await message.reply_text(
-            "❌ **This URL is too long.**\n\n"
+            "❌ This URL is too long.\n\n"
             "Please send a shorter direct download URL."
         )
 
         return
-
+        
     # Integrated Loading Animation based on your snippet
     temp_msg = await message.reply("ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ . . .")
     await asyncio.sleep(0.5)
