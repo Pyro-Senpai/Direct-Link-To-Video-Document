@@ -17,11 +17,7 @@ def user_thumbnail_path(user_id):
     )
 
 
-async def save_user_thumbnail(
-    client,
-    message,
-    user_id
-):
+async def save_user_thumbnail(client, message, user_id):
     if not message.reply_to_message:
         return None
 
@@ -44,9 +40,7 @@ async def save_user_thumbnail(
         return path
 
     except Exception:
-        logger.exception(
-            "Failed to save user thumbnail"
-        )
+        logger.exception("Failed to save user thumbnail")
         return None
 
 
@@ -70,16 +64,11 @@ def delete_user_thumbnail(user_id):
         return True
 
     except Exception:
-        logger.exception(
-            "Failed to delete user thumbnail"
-        )
+        logger.exception("Failed to delete user thumbnail")
         return False
 
 
-def create_video_thumbnail(
-    filepath,
-    output_path=None
-):
+def create_video_thumbnail(filepath, output_path=None):
     if not filepath:
         return None
 
@@ -102,7 +91,7 @@ def create_video_thumbnail(
             "ffmpeg",
             "-y",
             "-ss",
-            "00:00:05",
+            "00:05",
             "-i",
             filepath,
             "-frames:v",
@@ -111,7 +100,7 @@ def create_video_thumbnail(
             "scale=320:320:force_original_aspect_ratio=decrease",
             "-q:v",
             "3",
-            output_path,
+            output_path
         ]
 
         result = subprocess.run(
@@ -123,7 +112,7 @@ def create_video_thumbnail(
 
         if result.returncode != 0:
             logger.warning(
-                "5 second thumbnail failed. Trying first frame."
+                "5 second thumbnail failed. Trying random frame."
             )
 
             command = [
@@ -131,13 +120,15 @@ def create_video_thumbnail(
                 "-y",
                 "-i",
                 filepath,
+                "-vf",
+                "thumbnail",
                 "-frames:v",
                 "1",
                 "-vf",
                 "scale=320:320:force_original_aspect_ratio=decrease",
                 "-q:v",
                 "3",
-                output_path,
+                output_path
             ]
 
             result = subprocess.run(
@@ -150,9 +141,7 @@ def create_video_thumbnail(
         if result.returncode != 0:
             logger.error(
                 "Automatic thumbnail creation failed: %s",
-                result.stderr.decode(
-                    errors="ignore"
-                )[-1000:]
+                result.stderr.decode(errors="ignore")[-1000:]
             )
             return None
 
@@ -172,8 +161,7 @@ def create_video_thumbnail(
 
 
 @Client.on_message(
-    filters.command("setthumb")
-    & filters.private
+    filters.command("setthumb") & filters.private
 )
 async def set_thumbnail_command(
     client: Client,
@@ -212,8 +200,7 @@ async def set_thumbnail_command(
 
 
 @Client.on_message(
-    filters.command("viewthumb")
-    & filters.private
+    filters.command("viewthumb") & filters.private
 )
 async def view_thumbnail_command(
     client: Client,
@@ -221,9 +208,7 @@ async def view_thumbnail_command(
 ):
     user_id = message.from_user.id
 
-    path = get_user_thumbnail(
-        user_id
-    )
+    path = get_user_thumbnail(user_id)
 
     if not path:
         await message.reply_text(
@@ -249,8 +234,7 @@ async def view_thumbnail_command(
 
 
 @Client.on_message(
-    filters.command("delthumb")
-    & filters.private
+    filters.command("delthumb") & filters.private
 )
 async def delete_thumbnail_command(
     client: Client,
@@ -258,9 +242,7 @@ async def delete_thumbnail_command(
 ):
     user_id = message.from_user.id
 
-    deleted = delete_user_thumbnail(
-        user_id
-    )
+    deleted = delete_user_thumbnail(user_id)
 
     if not deleted:
         await message.reply_text(
