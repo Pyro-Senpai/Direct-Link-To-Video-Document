@@ -249,12 +249,11 @@ async def schedule_delete(
         notice_message = await client.send_message(
             chat_id=chat_id,
             text=(
-                "**ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ ᴇɴᴀʙʟᴇᴅ**\n"
-                "ʏᴏᴜʀ ꜰɪʟᴇ ᴡɪʟʟ ʙᴇ "
+                "<blockquote>ʏᴏᴜʀ ꜰɪʟᴇ ᴡɪʟʟ ʙᴇ "
                 f"ᴀᴜᴛᴏᴍᴀᴛɪᴄᴀʟʟʏ ᴅᴇʟᴇᴛᴇᴅ ᴀꜰᴛᴇʀ "
-                f"`{delete_after}`.\n"
+                f"`{delete_after}`ᴅᴜᴇ ᴛᴏ ᴄᴏᴘʏʀɪɢʜᴛ.\n"
                 "ᴘʟᴇᴀꜱᴇ ꜱᴀᴠᴇ ᴛʜᴇ ꜰɪʟᴇ ʙᴇꜰᴏʀᴇ "
-                "ᴛʜᴇ ᴛɪᴍᴇʀ ᴇxᴘɪʀᴇꜱ."
+                "ᴛʜᴇ ᴛɪᴍᴇʀ ᴇxᴘɪʀᴇꜱ.</blockquote>"
             )
         )
 
