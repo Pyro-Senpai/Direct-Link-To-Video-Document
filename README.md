@@ -28,7 +28,7 @@
   <img src="https://img.shields.io/badge/BOT_STATUS-ONLINE-00E676?style=flat-square&labelColor=111111" alt="Bot Status">
   <img src="https://img.shields.io/badge/ASYNC-ENABLED-00E5FF?style=flat-square&labelColor=111111" alt="Async">
   <img src="https://img.shields.io/badge/KOYEB-READY-8B5CF6?style=flat-square&labelColor=111111" alt="Koyeb">
-</p>graph TD
+</p>Graph TD
 
     User[👤 Telegram User]
 
@@ -373,7 +373,7 @@ docker run telegram-link-downloader
 
 <hr>🌐 Health Monitoring
 
-graph LR
+Graph LR
 
     K[☁️ Koyeb]
     H[🌐 Aiohttp]
@@ -392,10 +392,10 @@ graph LR
 <hr>🩺 Troubleshooting
 
 <details>
-<summary><b>❌ IndentationError</b></summary><br>Make sure every function body is correctly indented.
+<summary><b><table></table>❌ IndentationError</b></summary><br>Make sure every function body is correctly indented.
 
 async def example():
-    print("Hello")
+    print("Hello")</table>
 
 </details><details>
 <summary><b>❌ ImportError</b></summary><br>Check that the imported function actually exists in the target plugin.
