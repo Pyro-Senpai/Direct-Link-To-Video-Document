@@ -13,7 +13,7 @@ async def set_thumb_command(client: Client, message: Message):
         "It will be saved automatically as your custom thumbnail."
     )
 
-@Client.on_message(filters.photo & ~filters.edited)
+@Client.on_message(filters.photo & filters.incoming)
 async def save_photo_thumbnail(client: Client, message: Message):
     user_id = message.from_user.id
     
