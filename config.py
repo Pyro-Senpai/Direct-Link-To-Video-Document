@@ -58,12 +58,7 @@ START_IMAGE = os.getenv(
 )
 
 START_TEXT = (
-    "👋 **Welcome to Telegram File Store Bot!**\n\n"
-    "🔗 Send me a direct download link and I'll download "
-    "the file for you.\n\n"
-    "🎬 **Video** — Send as Telegram video\n"
-    "📄 **Document** — Send as Telegram document\n\n"
-    "⚡ Fast • Simple • Secure"
+    """<b>💖 ʜɪ {firstname} 🥀,\n<blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀғᴜʟ ᴅɪʀᴇᴄᴛ ʟɪɴᴋ ᴛᴏ ᴠɪᴅᴇᴏ / ᴅᴏᴄᴜᴍᴇɴᴛ ᴄᴏɴᴄᴇʀᴛᴇʀ ʙᴏᴛ</blockquote>\n<blockquote>ᴛʜɪs ɪs ᴍʏ sᴇɴᴘᴀɪ - @PyroSznpai</blockquote></b>"""
 )
 
 HELP_TEXT = (
