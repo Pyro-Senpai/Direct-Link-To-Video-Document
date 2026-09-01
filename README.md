@@ -391,25 +391,48 @@ Graph LR
 
 <hr>🩺 Troubleshooting
 
-<details>
-<summary><b>❌ IndentationError</b></summary><br><table>Make sure every function body is correctly indented.
+<div align="center"><table>
+<tr>
+<th>⚠️ Problem</th>
+<th>💡 Solution</th>
+</tr><tr>
+<td><b>IndentationError</b></td>
+<td>Check the indentation of functions, loops, conditions and callback handlers.</td>
+</tr><tr>
+<td><b>ImportError</b></td>
+<td>Make sure the imported function exists in the correct plugin file.</td>
+</tr><tr>
+<td><b>Client is already connected</b></td>
+<td>Make sure <code>bot.start()</code> is not called again while the same Pyrogram client is already connected.</td>
+</tr><tr>
+<td><b>Koyeb Health Check Failed</b></td>
+<td>Verify that the server listens on <code>0.0.0.0</code>, uses <code>$PORT</code>, and returns HTTP 200.</td>
+</tr><tr>
+<td><b>Bot keeps restarting</b></td>
+<td>Check the deployment logs for Python syntax errors, import errors or connection problems.</td>
+</tr><tr>
+<td><b>Download does not start</b></td>
+<td>Verify that <code>start_download()</code> is correctly imported and available in <code>plugins/downloader.py</code>.</td>
+</tr><tr>
+<td><b>Cancel button not working</b></td>
+<td>Make sure <code>cancel_download()</code> exists and the callback handler is loaded correctly.</td>
+</tr></table></div><br><details>
+<summary><b>🔴 IndentationError</b></summary><br>Check that the function body is properly indented.
 
 async def example():
-    print("Hello")</table>
+    print("Hello")
 
 </details><details>
-<summary><b>❌ ImportError</b></summary><br>Check that the imported function actually exists in the target plugin.
-
-Example:
+<summary><b>🔴 ImportError</b></summary><br>For example:
 
 from plugins.downloader import start_download
 
-Make sure "start_download" is defined inside:
+Make sure "start_download" actually exists inside:
 
 plugins/downloader.py
 
 </details><details>
-<summary><b>❌ Client is already connected</b></summary><br>This usually happens when the same Pyrogram client is started more than once.
+<summary><b>🔴 Client is already connected</b></summary><br>This error usually occurs when the same Pyrogram client is started more than once.
 
 Avoid repeatedly calling:
 
@@ -418,16 +441,39 @@ await bot.start()
 on an already-connected client.
 
 </details><details>
-<summary><b>❌ Koyeb Health Check Failed</b></summary><br>Check the following:
+<summary><b>🟠 Koyeb Health Check Failed</b></summary><br>Check:
 
-- Application listens on "0.0.0.0"
-- "$PORT" is used
-- "/" returns HTTP "200"
-- Environment variables are configured
-- Dependencies install successfully
-- No Python syntax errors exist
+<table>
+<tr>
+<td>✅</td>
+<td>Server listens on <code>0.0.0.0</code></td>
+</tr>
+<tr>
+<td>✅</td>
+<td><code>PORT</code> environment variable is supported</td>
+</tr>
+<tr>
+<td>✅</td>
+<td><code>/</code> returns HTTP 200</td>
+</tr>
+<tr>
+<td>✅</td>
+<td>Required environment variables are configured</td>
+</tr>
+<tr>
+<td>✅</td>
+<td>No Python syntax/import errors</td>
+</tr>
+</table></details><details>
+<summary><b>🟠 Download Not Starting</b></summary><br>Check that:
 
-</details><hr>🔒 Security Checklist
+from plugins.downloader import start_download, cancel_download
+
+is valid and both functions are available in "plugins/downloader.py".
+
+Also verify that the callback request contains a valid temporary ID and that the requesting user's ID matches the stored user ID.
+
+</details></div><hr>🔒 Security Checklist
 
 <div align="center"><table><tr>
 <td>🔑</td>
