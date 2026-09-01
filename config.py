@@ -58,35 +58,35 @@ START_IMAGE = os.getenv(
 )
 
 START_TEXT = (
-    """<b>💖 ʜɪ {firstname} 🥀,\n<blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀғᴜʟ ᴅɪʀᴇᴄᴛ ʟɪɴᴋ ᴛᴏ ᴠɪᴅᴇᴏ / ᴅᴏᴄᴜᴍᴇɴᴛ ᴄᴏɴᴄᴇʀᴛᴇʀ ʙᴏᴛ</blockquote>\n<blockquote>ᴛʜɪs ɪs ᴍʏ sᴇɴᴘᴀɪ - @PyroSznpai</blockquote></b>"""
+    """<b>💖 ʜᴇʟʟᴏ {mention} 🥀,\n<blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀғᴜʟ ᴅɪʀᴇᴄᴛ ʟɪɴᴋ ᴛᴏ ᴠɪᴅᴇᴏ / ᴅᴏᴄᴜᴍᴇɴᴛ ᴄᴏɴᴄᴇʀᴛᴇʀ ʙᴏᴛ</blockquote>\n<blockquote>ᴛʜɪs ɪs ᴍʏ sᴇɴᴘᴀɪ - <a href=" https://t.me/PyroSznpai">ᴘʏʀᴏ sᴇɴᴘᴀɪ</a></blockquote></b>"""
 )
 
 HELP_TEXT = (
-    "📚 **Help & Guide**\n\n"
+    "<b><blockquote>📚 **Help & Guide**\n"
     "🔗 **How to Download**\n"
     "1. Send a direct HTTP/HTTPS file link.\n"
     "2. Choose **🎬 Video** or **📄 Document**.\n"
     "3. Wait while the file is downloading.\n"
-    "4. The bot uploads the file to your Telegram.\n\n"
-    "🎬 **Video**\n"
-    "The file is uploaded as a Telegram video.\n\n"
+    "4. The bot uploads the file to your Telegram.</blockquote>\n"
+    "<blockquote>🎬 **Video**\n"
+    "The file is uploaded as a Telegram video.\n"
     "📄 **Document**\n"
-    "The file is uploaded as a Telegram document.\n\n"
+    "The file is uploaded as a Telegram document.\n"
     "🔄 **Refresh**\n"
-    "Refreshes the current download/upload progress.\n\n"
+    "Refreshes the current download/upload progress.\n"
     "❌ **Cancel**\n"
-    "Stops the current download or upload process.\n\n"
+    "Stops the current download or upload process.\n"
     "🗑️ **Auto Delete**\n"
     "Uploaded files can be automatically deleted after "
-    "the configured auto-delete time."
+    "the configured auto-delete time.</blockquote></b>"
 )
 
 ABOUT_TEXT = (
-    "ℹ️ **About This Bot**\n\n"
-    "🤖 **Telegram File Store Bot**\n\n"
+    "<b>**About This Bot**\n"
+    "<blockquote>**Telegram File Store Bot**\n"
     "A fast and simple direct-link file downloader "
-    "built for Telegram.\n\n"
-    "⚡ **Features**\n"
+    "built for Telegram.</blockquote>\n"
+    "<blockquote>**Features**\n"
     "• Direct HTTP/HTTPS downloads\n"
     "• Video & Document support\n"
     "• Live download progress\n"
@@ -94,12 +94,7 @@ ABOUT_TEXT = (
     "• Refresh & Cancel controls\n"
     "• Automatic file deletion\n"
     "• MongoDB database support\n"
-    "• Force subscription support\n\n"
-    "🛠️ **Technology**\n"
-    "🐍 Python\n"
-    "📱 Pyrogram\n"
-    "🍃 MongoDB\n\n"
-    "❤️ Developed and maintained with care."
+    "• Force subscription support</blockquote></b>"
 )
 
 os.makedirs(
