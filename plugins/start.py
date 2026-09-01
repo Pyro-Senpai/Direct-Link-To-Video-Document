@@ -17,6 +17,10 @@ from config import (
 )
 
 
+# ============================================================
+# START KEYBOARD
+# ============================================================
+
 def start_keyboard():
     return InlineKeyboardMarkup(
         [
@@ -40,6 +44,10 @@ def start_keyboard():
     )
 
 
+# ============================================================
+# INFO KEYBOARD
+# ============================================================
+
 def info_keyboard():
     return InlineKeyboardMarkup(
         [
@@ -57,6 +65,10 @@ def info_keyboard():
     )
 
 
+# ============================================================
+# /START COMMAND
+# ============================================================
+
 @Client.on_message(
     filters.command("start")
     & filters.private
@@ -65,8 +77,10 @@ async def start_command(
     client: Client,
     message: Message
 ):
+
     user = message.from_user
-    
+
+    # Format start message
     try:
         formatted_text = START_TEXT.format(
             first_name=user.first_name or "",
@@ -75,15 +89,16 @@ async def start_command(
             lastname=user.last_name or "",
             mention=user.mention
         )
+
     except KeyError:
         formatted_text = START_TEXT
 
     keyboard = start_keyboard()
 
+    # Send image if configured
     if START_IMAGE:
 
         try:
-
             await message.reply_photo(
                 photo=START_IMAGE,
                 caption=formatted_text,
@@ -95,11 +110,16 @@ async def start_command(
         except Exception:
             pass
 
+    # Send normal text if image fails/not configured
     await message.reply_text(
         formatted_text,
         reply_markup=keyboard
     )
 
+
+# ============================================================
+# HELP CALLBACK
+# ============================================================
 
 @Client.on_callback_query(
     filters.regex(r"^help$")
@@ -110,7 +130,6 @@ async def help_callback(
 ):
 
     try:
-
         await callback_query.message.edit_text(
             HELP_TEXT,
             reply_markup=info_keyboard()
@@ -122,6 +141,10 @@ async def help_callback(
     await callback_query.answer()
 
 
+# ============================================================
+# ABOUT CALLBACK
+# ============================================================
+
 @Client.on_callback_query(
     filters.regex(r"^about$")
 )
@@ -131,7 +154,6 @@ async def about_callback(
 ):
 
     try:
-
         await callback_query.message.edit_text(
             ABOUT_TEXT,
             reply_markup=info_keyboard()
@@ -143,6 +165,10 @@ async def about_callback(
     await callback_query.answer()
 
 
+# ============================================================
+# BACK TO START CALLBACK
+# ============================================================
+
 @Client.on_callback_query(
     filters.regex(r"^start$")
 )
@@ -150,8 +176,10 @@ async def back_to_start(
     client: Client,
     callback_query: CallbackQuery
 ):
+
     user = callback_query.from_user
-    
+
+    # Format start message
     try:
         formatted_text = START_TEXT.format(
             first_name=user.first_name or "",
@@ -160,11 +188,11 @@ async def back_to_start(
             lastname=user.last_name or "",
             mention=user.mention
         )
+
     except KeyError:
         formatted_text = START_TEXT
 
     try:
-
         await callback_query.message.edit_text(
             formatted_text,
             reply_markup=start_keyboard()
@@ -175,6 +203,10 @@ async def back_to_start(
 
     await callback_query.answer()
 
+
+# ============================================================
+# CLOSE CALLBACK
+# ============================================================
 
 @Client.on_callback_query(
     filters.regex(r"^close$")
@@ -189,12 +221,15 @@ async def close_callback(
     )
 
     try:
-
         await callback_query.message.delete()
 
     except Exception:
         pass
 
+
+# ============================================================
+# URL HANDLER
+# ============================================================
 
 @Client.on_message(
     filters.private
@@ -213,7 +248,11 @@ async def url_handler(
 
     url = message.text.strip()
 
-   if not re.match(
+    # --------------------------------------------------------
+    # URL VALIDATION
+    # --------------------------------------------------------
+
+    if not re.match(
         r"^https?://",
         url,
         re.IGNORECASE
@@ -225,6 +264,10 @@ async def url_handler(
 
         return
 
+    # --------------------------------------------------------
+    # URL LENGTH CHECK
+    # --------------------------------------------------------
+
     if len(
         url.encode("utf-8")
     ) > 150:
@@ -235,24 +278,51 @@ async def url_handler(
         )
 
         return
-        
-    # Integrated Loading Animation based on your snippet
-    temp_msg = await message.reply("ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ . . .")
+
+    # --------------------------------------------------------
+    # LOADING ANIMATION
+    # --------------------------------------------------------
+
+    temp_msg = await message.reply(
+        "ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ . . ."
+    )
+
     await asyncio.sleep(0.5)
-    await temp_msg.edit_text("?!")
-    await asyncio.sleep(0.5)
-    await temp_msg.edit_text("..")
-    await asyncio.sleep(0.5)
-    await temp_msg.edit_text("#?!")
 
     try:
-        await temp_msg.delete()
+        await temp_msg.edit_text("?!")
     except Exception:
         pass
 
-    from plugins.callbacks import (
-        show_format_buttons
-    )
+    await asyncio.sleep(0.5)
+
+    try:
+        await temp_msg.edit_text("..")
+    except Exception:
+        pass
+
+    await asyncio.sleep(0.5)
+
+    try:
+        await temp_msg.edit_text("#?!")
+    except Exception:
+        pass
+
+    # --------------------------------------------------------
+    # DELETE LOADING MESSAGE
+    # --------------------------------------------------------
+
+    try:
+        await temp_msg.delete()
+
+    except Exception:
+        pass
+
+    # --------------------------------------------------------
+    # SHOW FORMAT BUTTONS
+    # --------------------------------------------------------
+
+    from plugins.callbacks import show_format_buttons
 
     await show_format_buttons(
         message,
