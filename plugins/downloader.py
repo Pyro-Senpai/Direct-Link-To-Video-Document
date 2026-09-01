@@ -156,24 +156,19 @@ def download_status(
         )
 
         return (
-            "📥 **Downloading...**\n\n"
-            f"`{bar}` **{percentage:.1f}%**\n\n"
-            f"📦 **Size:** "
+            "<b>📥 **Dᴏᴡɴʟᴏᴀᴅɪɴɢ...**\n"
+            f"`{bar}` **[{percentage:.1f}%]**\n"
+            f"<blockquote>📦 **Size:** "
             f"`{format_bytes(current)}` / "
             f"`{format_bytes(total)}`\n"
             f"🚀 **Speed:** "
             f"`{format_bytes(speed)}/s`\n"
             f"⏳ **ETA:** "
-            f"`{format_time(eta)}`"
+            f"`{format_time(eta)}`</blockquote></b>"
         )
 
     return (
-        "📥 **Downloading...**\n\n"
-        f"📦 **Downloaded:** "
-        f"`{format_bytes(current)}`\n"
-        f"🚀 **Speed:** "
-        f"`{format_bytes(speed)}/s`\n"
-        "⏳ **ETA:** `Calculating...`"
+        "<b>Uᴘʟᴏᴀᴅɪɴɢ?!...</b>"
     )
 
 
@@ -208,24 +203,19 @@ def upload_status(
         )
 
         return (
-            "📤 **Uploading...**\n\n"
-            f"`{bar}` **{percentage:.1f}%**\n\n"
-            f"📦 **Size:** "
+            "<b>📤 **Uᴘʟᴏᴀᴅɪɴɢ...**\n\n"
+            f"`{bar}` **[{percentage:.1f}%]**\n\n"
+            f"<blockquote>📦 **Size:** "
             f"`{format_bytes(current)}` / "
             f"`{format_bytes(total)}`\n"
             f"🚀 **Speed:** "
             f"`{format_bytes(speed)}/s`\n"
             f"⏳ **ETA:** "
-            f"`{format_time(eta)}`"
+            f"`{format_time(eta)}`</blockquote></b>"
         )
 
     return (
-        "📤 **Uploading...**\n\n"
-        f"📦 **Uploaded:** "
-        f"`{format_bytes(current)}`\n"
-        f"🚀 **Speed:** "
-        f"`{format_bytes(speed)}/s`\n"
-        "⏳ **ETA:** `Calculating...`"
+        "<b>Uᴘʟᴏᴀᴅ Cᴏᴍᴘʟᴇᴛᴇᴅ?!</b>"
     )
 
 
@@ -234,11 +224,11 @@ def progress_keyboard():
         [
             [
                 InlineKeyboardButton(
-                    "🔄 Refresh",
+                    "Rᴇғʀᴇsʜ",
                     callback_data="refresh_download",
                 ),
                 InlineKeyboardButton(
-                    "❌ Cancel",
+                    "Cᴀɴᴄᴇʟ",
                     callback_data="cancel_download",
                 ),
             ]
@@ -248,9 +238,9 @@ def progress_keyboard():
 
 def optimize_video_for_streaming(filepath):
     """Moves moov atom to the start of the file for proper Telegram streaming/duration parsing."""
-    temp_output = filepath.replace(".mp4", "_optimized.mp4")
+    temp_output = filepath.replace(".mkv", "_optimized.mkv")
     if temp_output == filepath:
-        temp_output = filepath + ".mp4"
+        temp_output = filepath + ".mkv"
         
     try:
         result = subprocess.run(
@@ -429,7 +419,7 @@ async def download_file(
                 > MAX_FILE_SIZE
             ):
                 raise RuntimeError(
-                    "File is larger than the configured limit."
+                    "Fɪʟᴇ ᴇxᴄᴇᴇᴅᴇᴅ ᴛʜᴇ ᴄᴏɴғɪɢᴜʀᴇᴅ ʟɪᴍɪᴛ."
                 )
 
             with open(
@@ -459,7 +449,7 @@ async def download_file(
                         > MAX_FILE_SIZE
                     ):
                         raise RuntimeError(
-                            "File exceeded the configured limit."
+                            "Fɪʟᴇ ᴇxᴄᴇᴇᴅᴇᴅ ᴛʜᴇ ᴄᴏɴғɪɢᴜʀᴇᴅ ʟɪᴍɪᴛ."
                         )
 
                     output.write(chunk)
@@ -589,7 +579,7 @@ async def get_user_thumbnail(
                 return thumb_path
 
     except Exception:
-        logger.exception("Error retrieving user thumbnail.")
+        logger.exception("Eʀʀᴏʀ ʀᴇᴛʀɪᴇᴠɪɴɢ ᴜsᴇʀ ᴛʜᴜᴍʙɴᴀɪʟ.")
 
     return None
 
@@ -632,7 +622,7 @@ def create_video_thumbnail(
 
     except Exception:
         logger.exception(
-            "Automatic thumbnail creation failed."
+            "Aᴜᴛᴏᴍᴀᴛɪᴄ ᴛʜᴜᴍʙɴᴀɪʟ ᴄʀᴇᴀᴛɪᴏɴ ғᴀɪʟᴇᴅ."
         )
 
     return None
@@ -647,8 +637,8 @@ async def start_download(
 ):
     if user_id in active_downloads:
         await message.edit_text(
-            "⚠️ **You already have a download running.**\n\n"
-            "Use the **Cancel** button."
+            "**Yᴏᴜ ᴀʟʀᴇᴀᴅʏ ʜᴀᴠᴇ ᴀ ᴅᴏᴡɴʟᴏᴀᴅ ʀᴜɴɴɪɴɢ.**\n"
+            "Usᴇ ᴛʜᴇ**Cᴀɴᴄᴇʟ** ʙᴜᴛᴛᴏɴ."
         )
         return
 
@@ -657,7 +647,7 @@ async def start_download(
         "document",
     ):
         await message.edit_text(
-            "❌ **Invalid download mode.**"
+            "**Iɴᴠᴀʟɪᴅ ᴅᴏᴡɴʟᴏᴀᴅ ᴍᴏᴅᴇ.**"
         )
         return
 
@@ -693,8 +683,7 @@ async def start_download(
 
     try:
         await message.edit_text(
-            "🔍 **Checking link...**\n\n"
-            f"📁 **Mode:** `{mode.title()}`",
+            "Dᴏᴡɴʟᴏᴀᴅ sᴛᴀʀᴛɪɴ?!...",
             reply_markup=(
                 progress_keyboard()
             ),
@@ -728,7 +717,7 @@ async def start_download(
             > MAX_FILE_SIZE
         ):
             raise RuntimeError(
-                "File is larger than the configured limit."
+                "Fɪʟᴇ ɪs ʟᴀʀɢᴇʀ ᴛʜᴀɴ ᴛʜᴇ ᴄᴏɴғɪɢᴜʀᴇᴅ ʟɪᴍɪᴛ."
             )
 
         if mode == "video":
@@ -762,12 +751,7 @@ async def start_download(
         ]["upload_start"] = upload_start
 
         await message.edit_text(
-            "📤 **Uploading...**\n\n"
-            "📊 **Preparing file...**\n"
-            f"📦 **File Size:** "
-            f"`{format_bytes(actual_size)}`\n"
-            "🚀 **Speed:** `Calculating...`\n"
-            "⏳ **ETA:** `Calculating...`",
+            "<b>Uᴘʟᴏᴀᴅ Cᴏᴍᴘʟᴇᴛᴇᴅ?!",
             reply_markup=(
                 progress_keyboard()
             ),
@@ -840,7 +824,7 @@ async def start_download(
 
         except Exception:
             logger.exception(
-                "Database save failed."
+                "Dᴀᴛᴀʙᴀsᴇ sᴀᴠᴇ ғᴀɪʟᴇᴅ."
             )
 
         try:
@@ -863,11 +847,7 @@ async def start_download(
 
         try:
             await message.edit_text(
-                "✅ **Completed!**\n\n"
-                f"📦 **File Size:** "
-                f"`{format_bytes(actual_size)}`\n"
-                f"📁 **Mode:** "
-                f"`{mode.title()}`"
+                "Tᴀsᴋ ᴄᴏᴍᴘʟᴇᴛᴇᴅ?!"
             )
 
         except Exception:
@@ -885,7 +865,7 @@ async def start_download(
 
         try:
             await message.edit_text(
-                "❌ **Download cancelled.**"
+                "**Dᴏᴡɴʟᴏᴀᴅ ᴄᴀɴᴄᴇʟʟᴇᴅ.**"
             )
 
         except Exception:
@@ -894,7 +874,7 @@ async def start_download(
     except Exception as error:
 
         logger.exception(
-            "Download failed."
+            "Dᴏᴡɴʟᴏᴀᴅ ғᴀɪʟᴇᴅ."
         )
 
         error_text = str(error)
@@ -907,7 +887,7 @@ async def start_download(
 
         try:
             await message.edit_text(
-                "❌ **Download failed.**\n\n"
+                "**Dᴏᴡɴʟᴏᴀᴅ ғᴀɪʟᴇᴅ.**\n"
                 f"`{error_text}`"
             )
 
@@ -945,13 +925,13 @@ async def start_download(
                 )
 
                 logger.info(
-                    "Deleted temporary file: %s",
+                    "Dᴇʟᴇᴛᴇᴅ ᴛᴇᴍᴘᴏʀᴀʀʏ ғɪʟᴇ: %s",
                     filepath,
                 )
 
             except Exception:
                 logger.exception(
-                    "Could not delete temporary file."
+                    "Cᴏᴜʟᴅ ɴᴏᴛ ᴅᴇʟᴇᴛᴇ ᴛᴇᴍᴘᴏʀᴀʀʏ ғɪʟᴇ."
                 )
 
 
@@ -986,13 +966,13 @@ async def cancel_download(
             )
 
             logger.info(
-                "Deleted cancelled file: %s",
+                "Dᴇʟᴇᴛᴇ ᴄᴀɴᴄᴇʟʟᴇᴅ ғɪʟᴇ: %s",
                 filepath,
             )
 
         except Exception:
             logger.exception(
-                "Could not delete cancelled file."
+                "Cᴏᴜʟᴅ ɴᴏᴛ ᴅᴇʟᴇᴛᴇ ᴄᴀɴᴄᴇʟʟᴇᴅ ғɪʟᴇ."
             )
 
     return True
