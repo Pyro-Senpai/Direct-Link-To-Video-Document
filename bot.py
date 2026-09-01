@@ -21,7 +21,7 @@ class Bot(Client):
 
     def __init__(self):
         super().__init__(
-            "link_downloader_bot",
+            name="link_downloader_bot",
             api_id=API_ID,
             api_hash=API_HASH,
             bot_token=BOT_TOKEN,
@@ -50,10 +50,7 @@ async def start_health_server():
     await runner.setup()
 
     port = int(
-        os.environ.get(
-            "PORT",
-            "8080",
-        )
+        os.environ.get("PORT", "8080")
     )
 
     site = web.TCPSite(
@@ -74,61 +71,87 @@ async def start_health_server():
 
 async def start_bot(bot):
 
-    while True:
+    try:
 
-        try:
-            await bot.start()
-            return
+        logger.info("Connecting to Telegram...")
 
-        except FloodWait as e:
+        await bot.start()
 
-            wait_time = e.value + 5
+        logger.info(
+            "Telegram connection successful."
+        )
 
-            logger.warning(
-                "FloodWait detected! Waiting %s seconds before retrying...",
-                wait_time,
-            )
+        return True
 
-            await asyncio.sleep(wait_time)
+    except FloodWait as e:
 
-        except Exception:
+        wait_time = int(e.value) + 5
 
-            logger.exception(
-                "Fatal error while starting bot."
-            )
+        logger.warning(
+            "Telegram FloodWait detected."
+        )
 
-            raise
+        logger.warning(
+            "Waiting %s seconds before retrying...",
+            wait_time,
+        )
+
+        await asyncio.sleep(wait_time)
+
+        return False
+
+    except Exception:
+
+        logger.exception(
+            "Failed to start Telegram bot."
+        )
+
+        raise
 
 
 async def main():
 
     logger.info("Starting Telegram bot...")
 
-    bot = Bot()
-
     health_runner = await start_health_server()
+
+    bot = Bot()
 
     bot_started = False
 
     try:
 
-        await start_bot(bot)
+        while not bot_started:
 
-        bot_started = True
+            bot_started = await start_bot(bot)
+
+            if not bot_started:
+
+                logger.info(
+                    "Retrying Telegram bot connection..."
+                )
 
         me = await bot.get_me()
 
-        logger.info("=" * 40)
-        logger.info("Bot Started Successfully")
+        logger.info("=" * 50)
+        logger.info("BOT STARTED SUCCESSFULLY")
         logger.info("Username: @%s", me.username)
         logger.info("ID: %s", me.id)
-        logger.info("=" * 40)
+        logger.info("=" * 50)
 
         await asyncio.Event().wait()
 
     except asyncio.CancelledError:
 
-        logger.info("Bot task cancelled.")
+        logger.info(
+            "Bot task cancelled."
+        )
+
+    except KeyboardInterrupt:
+
+        logger.info(
+            "Shutdown requested."
+        )
 
     except Exception:
 
@@ -140,20 +163,28 @@ async def main():
 
     finally:
 
-        logger.info("Stopping bot...")
-
         if bot_started:
 
             try:
+
+                logger.info(
+                    "Stopping Telegram bot..."
+                )
+
                 await bot.stop()
 
             except Exception:
 
                 logger.exception(
-                    "Error while stopping bot."
+                    "Error while stopping Telegram bot."
                 )
 
         try:
+
+            logger.info(
+                "Stopping health server..."
+            )
+
             await health_runner.cleanup()
 
         except Exception:
@@ -162,7 +193,9 @@ async def main():
                 "Error while stopping health server."
             )
 
-        logger.info("Bot stopped.")
+        logger.info(
+            "Application stopped."
+        )
 
 
 if __name__ == "__main__":
