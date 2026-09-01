@@ -19,7 +19,7 @@ temp_msg = await message.reply("ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ ...")
         await asyncio.sleep(0.5)
         await temp_msg.edit_text("?!")
         await asyncio.sleep(0.5)
-        await temp_msg.edit_text("??!!")
+        await temp_msg.edit_text("?!..")
         await asyncio.sleep(0.5)
         messages = []
 
