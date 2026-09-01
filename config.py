@@ -58,7 +58,7 @@ START_IMAGE = os.getenv(
 )
 
 START_TEXT = (
-    """<b>💖 ʜᴇʟʟᴏ {mention} 🥀,\n<blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀғᴜʟ ᴅɪʀᴇᴄᴛ ʟɪɴᴋ ᴛᴏ ᴠɪᴅᴇᴏ / ᴅᴏᴄᴜᴍᴇɴᴛ ᴄᴏɴᴄᴇʀᴛᴇʀ ʙᴏᴛ</blockquote>\n<blockquote>ᴛʜɪs ɪs ᴍʏ sᴇɴᴘᴀɪ - <a href=" https://t.me/PyroSznpai">ᴘʏʀᴏ sᴇɴᴘᴀɪ</a></blockquote></b>"""
+    """<b>💖 ʜᴇʟʟᴏ {mention} 🥀,\n<blockquote>ɪ ᴀᴍ ᴘᴏᴡᴇʀғᴜʟ ᴅɪʀᴇᴄᴛ ʟɪɴᴋ ᴛᴏ ᴠɪᴅᴇᴏ / ᴅᴏᴄᴜᴍᴇɴᴛ ᴄᴏɴᴄᴇʀᴛᴇʀ ʙᴏᴛ</blockquote>\n<blockquote>ᴛʜɪs ɪs ᴍʏ sᴇɴᴘᴀɪ - <a href="https://t.me/PyroSznpai">ᴘʏʀᴏ sᴇɴᴘᴀɪ</a></blockquote></b>"""
 )
 
 HELP_TEXT = (
