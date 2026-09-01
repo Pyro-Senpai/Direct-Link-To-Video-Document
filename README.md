@@ -417,30 +417,7 @@ Graph LR
 <td><b>Cancel button not working</b></td>
 <td>Make sure <code>cancel_download()</code> exists and the callback handler is loaded correctly.</td>
 </tr></table></div><br><details>
-<summary><b>🔴 IndentationError</b></summary><br>Check that the function body is properly indented.
-
-async def example():
-    print("Hello")
-
-</details><details>
-<summary><b>🔴 ImportError</b></summary><br>For example:
-
-from plugins.downloader import start_download
-
-Make sure "start_download" actually exists inside:
-
-plugins/downloader.py
-
-</details><details>
-<summary><b>🔴 Client is already connected</b></summary><br>This error usually occurs when the same Pyrogram client is started more than once.
-
-Avoid repeatedly calling:
-
-await bot.start()
-
-on an already-connected client.
-
-</details><details>
+  
 <summary><b>🟠 Koyeb Health Check Failed</b></summary><br>Check:
 
 <table>
