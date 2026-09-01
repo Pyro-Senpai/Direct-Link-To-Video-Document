@@ -71,18 +71,6 @@
     Koyeb --> Health
     Health --> Koyeb
 
-    style User fill:#111827,stroke:#3b82f6,color:#fff
-    style Bot fill:#1e293b,stroke:#38bdf8,color:#fff
-    style URL fill:#172554,stroke:#60a5fa,color:#fff
-    style Format fill:#422006,stroke:#f59e0b,color:#fff
-    style Video fill:#14532d,stroke:#22c55e,color:#fff
-    style Document fill:#164e63,stroke:#06b6d4,color:#fff
-    style Downloader fill:#312e81,stroke:#818cf8,color:#fff
-    style Telegram fill:#0c4a6e,stroke:#0ea5e9,color:#fff
-    style Cancel fill:#7f1d1d,stroke:#ef4444,color:#fff
-    style Health fill:#3b0764,stroke:#a855f7,color:#fff
-    style Koyeb fill:#111827,stroke:#8b5cf6,color:#fff
-
 <hr>⚡ Features
 
 <div align="center"><table>
@@ -204,18 +192,41 @@ Stops an active download when supported by the downloader.
 </td></tr>
 </table></div><hr>📂 Project Structure
 
-.
-├── bot.py
-├── config.py
-├── requirements.txt
-├── Dockerfile
-├── README.md
-│
-└── plugins/
-    ├── start.py
-    ├── callbacks.py
-    ├── downloader.py
-    └── cancel.py
+<div align="center"><table>
+<tr>
+<th>📄 File / Folder</th>
+<th>🎯 Purpose</th>
+</tr><tr>
+<td><code>bot.py</code></td>
+<td>🤖 Main bot entry point, Pyrogram client and Koyeb health server.</td>
+</tr><tr>
+<td><code>config.py</code></td>
+<td>🔐 Telegram API and bot configuration.</td>
+</tr><tr>
+<td><code>requirements.txt</code></td>
+<td>📦 Python dependencies required by the project.</td>
+</tr><tr>
+<td><code>Dockerfile</code></td>
+<td>🐳 Docker container configuration.</td>
+</tr><tr>
+<td><code>README.md</code></td>
+<td>📖 Project documentation and setup guide.</td>
+</tr><tr>
+<td><code>plugins/</code></td>
+<td>🧩 Modular Telegram bot handlers.</td>
+</tr><tr>
+<td><code>plugins/start.py</code></td>
+<td>🚀 Handles the <code>/start</code> command and URL messages.</td>
+</tr><tr>
+<td><code>plugins/callbacks.py</code></td>
+<td>🎛️ Handles Video, Document and Cancel callback buttons.</td>
+</tr><tr>
+<td><code>plugins/downloader.py</code></td>
+<td>⚡ Handles file downloading and Telegram uploading.</td>
+</tr><tr>
+<td><code>plugins/cancel.py</code></td>
+<td>❌ Handles download cancellation functionality.</td>
+</tr></table></div>
 
 <hr>🧩 Module Architecture
 
