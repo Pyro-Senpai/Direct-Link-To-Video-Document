@@ -20,4 +20,7 @@ COPY . .
 
 RUN mkdir -p /app/downloads
 
+# Check FFmpeg during Docker build
+RUN ffmpeg -version && ffprobe -version
+
 CMD ["python", "bot.py"]
