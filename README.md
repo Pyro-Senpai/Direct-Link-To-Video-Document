@@ -1,105 +1,126 @@
-Telegram Link Downloader Bot
+🚀 Telegram Link Downloader Bot
 
-A Telegram bot built with Python + Pyrogram that allows users to send a direct video/download URL and choose whether the downloaded file should be sent as a Video or Document.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python" />
+  <img src="https://img.shields.io/badge/Pyrogram-2.x-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Koyeb-Deploy-purple?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Telegram-Bot-blue?style=for-the-badge&logo=telegram" />
+</p><p align="center">
+  <b>⚡ A powerful Telegram Link Downloader Bot built with Python & Pyrogram.</b>
+</p>---
 
 ✨ Features
 
-- 🔗 Download files from supported direct URLs
-- 🎬 Send downloaded files as Telegram Video
-- 📄 Send downloaded files as Telegram Document
-- ❌ Cancel active downloads
-- 🆔 Short callback IDs instead of putting long URLs inside buttons
-- 🔒 User verification for download buttons
-- 🌐 Koyeb health-check server
-- ⚡ Async downloading with Pyrogram
-- 🐍 Python 3.12 compatible
-- 🔄 FloodWait handling
-- ☁️ Koyeb deployment support
+<table>
+<tr>
+<td>🔗 <b>URL Download</b></td>
+<td>🎬 <b>Video Mode</b></td>
+</tr>
+<tr>
+<td>📄 <b>Document Mode</b></td>
+<td>❌ <b>Cancel Download</b></td>
+</tr>
+<tr>
+<td>🔒 <b>User Security</b></td>
+<td>🆔 <b>Short Callback IDs</b></td>
+</tr>
+<tr>
+<td>☁️ <b>Koyeb Support</b></td>
+<td>⚡ <b>Async Processing</b></td>
+</tr>
+</table>---
+
+🧰 Tech Stack
+
+🐍 Python
+⚡ Pyrogram
+🌐 Aiohttp
+☁️ Koyeb
+📦 Aiofiles
+
+---
 
 📁 Project Structure
 
 Telegram-Link-Downloader/
 │
-├── bot.py
-├── config.py
-├── requirements.txt
-├── Dockerfile
-├── README.md
+├── 📄 bot.py
+├── 📄 config.py
+├── 📄 requirements.txt
+├── 📄 Dockerfile
+├── 📄 README.md
 │
-└── plugins/
-    ├── __init__.py
-    ├── start.py
-    ├── callbacks.py
-    ├── cancel.py
-    └── downloader.py
+└── 📂 plugins/
+    ├── 📄 __init__.py
+    ├── 📄 start.py
+    ├── 📄 callbacks.py
+    ├── 📄 cancel.py
+    └── 📄 downloader.py
 
-🛠️ Requirements
+---
 
-- Python 3.10+
-- Telegram Bot Token
-- Telegram API ID
-- Telegram API Hash
-- Pyrogram
-- aiohttp
+🔑 Environment Variables
 
-Optional:
+Create the following environment variables:
 
-- MongoDB, if your downloader/project uses a database
-- Koyeb account for cloud deployment
+API_ID=YOUR_API_ID
+API_HASH=YOUR_API_HASH
+BOT_TOKEN=YOUR_BOT_TOKEN
 
-🔑 Get Telegram API ID & API Hash
+«⚠️ Never publish your "BOT_TOKEN" or "API_HASH" publicly.»
 
-Go to:
+---
 
-https://my.telegram.org/
+🤖 Create Your Telegram Bot
 
-1. Log in with your Telegram account.
-2. Open API development tools.
-3. Create a new application.
-4. Copy:
-   - "API_ID"
-   - "API_HASH"
+Open Telegram and search for:
 
-🤖 Create a Telegram Bot
+@BotFather
 
-Open Telegram and search for @BotFather.
-
-Run:
+Then use:
 
 /newbot
 
 Follow the instructions and copy your bot token.
 
-⚙️ Configuration
+---
 
-Create a "config.py" file:
+🔐 Get API ID & API HASH
 
-import os
+Open:
 
-API_ID = int(os.environ.get("API_ID", "0"))
-API_HASH = os.environ.get("API_HASH", "")
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+https://my.telegram.org/
 
-For deployment, it's recommended to use environment variables instead of hard-coding secrets.
+Then:
 
-📦 Install Dependencies
+Login
+  ↓
+API Development Tools
+  ↓
+Create New Application
+  ↓
+Copy API_ID & API_HASH
 
-Clone your project:
+---
+
+📦 Installation
+
+1️⃣ Clone Repository
 
 git clone YOUR_REPOSITORY_URL
 cd Telegram-Link-Downloader
 
-Install dependencies:
+2️⃣ Install Requirements
 
 pip install -r requirements.txt
 
-Start the bot:
+3️⃣ Start Bot
 
 python bot.py
 
-📄 requirements.txt
+---
 
-Example:
+📋 requirements.txt
 
 Pyrogram>=2.0.106
 pyrofork>=2.3.69
@@ -109,71 +130,138 @@ aiofiles
 requests
 TgCrypto
 
-Only keep the packages that your actual project imports.
+---
 
-🚀 Deploy on Koyeb
+🎯 How It Works
 
-1. Push the project to GitHub
+👤 User
+   │
+   │ Sends URL
+   ▼
+🤖 Telegram Bot
+   │
+   ▼
+🎬 Video     📄 Document
+   │              │
+   └──────┬───────┘
+          ▼
+     📥 Download
+          │
+          ▼
+     📤 Send File
+          │
+          ▼
+       👤 User
 
-Make sure your repository contains:
+---
 
-bot.py
-config.py
-requirements.txt
-Dockerfile
-plugins/
+🎬 Download Format
 
-2. Create Koyeb Service
+When a user sends a URL, the bot shows:
 
-Create a new Web Service from your GitHub repository.
+┌─────────────────────────────────┐
+│     📥 Choose download format   │
+├─────────────────────────────────┤
+│  🎬 Video     │  📄 Document   │
+├─────────────────────────────────┤
+│          ❌ Cancel              │
+└─────────────────────────────────┘
 
-Select your repository and branch.
+🎬 Video
 
-3. Environment Variables
+The downloaded file is sent as a Telegram video.
 
-Add:
+📄 Document
 
-API_ID=YOUR_API_ID
-API_HASH=YOUR_API_HASH
-BOT_TOKEN=YOUR_BOT_TOKEN
+The downloaded file is sent as a Telegram document.
 
-If your project uses additional variables, add them as well.
+❌ Cancel
 
-4. Port
+Cancels the user's active download.
 
-The bot includes an HTTP health server.
+---
 
-Koyeb should use the "PORT" environment variable.
+🔒 Security
 
-The application defaults to:
+The bot doesn't put the full URL inside Telegram's callback data.
+
+Instead:
+
+Full URL
+   ↓
+Generate Short ID
+   ↓
+Store URL
+   ↓
+Send Button
+
+Example:
+
+video:a1b2c3d4e5f6
+
+The bot also verifies the Telegram user ID before starting the download.
+
+---
+
+☁️ Koyeb Deployment
+
+Step 1 — Upload to GitHub
+
+Push your project to GitHub.
+
+Step 2 — Create Koyeb App
+
+Create a new Web Service and connect your GitHub repository.
+
+Step 3 — Add Environment Variables
+
+API_ID
+API_HASH
+BOT_TOKEN
+
+Step 4 — Port
+
+The health server uses:
 
 8080
 
-Health endpoints:
+or Koyeb's:
 
-/
+PORT
 
-and:
+environment variable.
 
-/health
+Step 5 — Start Command
 
-Both return:
+python bot.py
+
+---
+
+🩺 Health Check
+
+The bot includes an "aiohttp" health server.
+
+GET /
+
+Response:
 
 OK
 
-5. Start Command
+Another endpoint:
 
-If using a Python build:
+GET /health
 
-python bot.py
+Response:
 
-If using Docker, configure the Dockerfile to start:
+OK
 
-python bot.py
+This allows Koyeb to verify that the service is running.
 
-🐳 Dockerfile
+---
 
-Example:
+🐳 Docker
+
+Example "Dockerfile":
 
 FROM python:3.12-slim
 
@@ -187,134 +275,79 @@ COPY . .
 
 CMD ["python", "bot.py"]
 
-🎯 How To Use
-
-1. Open your Telegram bot.
-2. Send "/start".
-3. Send a supported download URL.
-4. The bot displays:
-
-🎬 Video
-📄 Document
-❌ Cancel
-
-5. Select the required format.
-6. The bot starts downloading.
-7. The completed file is sent back to Telegram.
-
-🔒 Security
-
-The bot creates a short ID for every download request.
-
-Instead of storing the complete URL in Telegram callback data:
-
-video:https://example.com/very/long/url
-
-it uses:
-
-video:a1b2c3d4e5f6
-
-The bot stores the URL internally and verifies that the Telegram user clicking the button is the same user who created the request.
-
-❌ Cancel Download
-
-Users can press:
-
-❌ Cancel
-
-to stop an active download.
-
-If no active download exists, the bot responds:
-
-ℹ️ No active download.
-
-🩺 Koyeb Health Check
-
-The application starts an "aiohttp" web server alongside the Telegram bot.
-
-Example:
-
-Health server started on port 8080
-
-Koyeb can access:
-
-GET /
-
-or:
-
-GET /health
-
-Expected response:
-
-200 OK
-
-🔄 FloodWait Handling
-
-Telegram may temporarily restrict requests when too many API calls are made.
-
-The bot handles "FloodWait" and waits before retrying:
-
-except FloodWait as e:
-    wait_time = e.value + 5
-    await asyncio.sleep(wait_time)
+---
 
 🐛 Troubleshooting
 
-IndentationError
+❌ IndentationError
 
-If you see:
-
-IndentationError: expected an indented block
-
-check the indentation in the affected Python file.
-
-Python requires code inside functions to be indented.
-
-Client is already connected
-
-If you see:
-
-ConnectionError: Client is already connected
-
-make sure your application does not call:
-
-await bot.start()
-
-again after the same Pyrogram client has already connected.
-
-ImportError
+Check the indentation of your Python files.
 
 Example:
 
-ImportError: cannot import name 'something' from 'config'
+async def test():
+    print("Hello")
 
-Check that the variable exists in "config.py" and that the spelling matches the import.
+Not:
 
-Bot starts but commands don't work
+async def test():
+print("Hello")
 
-Check:
+---
 
-- "BOT_TOKEN"
-- "API_ID"
-- "API_HASH"
-- Plugin folder name
-- Plugin Python files
-- Pyrogram version
-- Koyeb logs
+❌ Client is already connected
+
+Make sure the same Pyrogram client isn't being started multiple times.
+
+Use:
+
+await bot.start()
+
+only once for the application lifecycle.
+
+---
+
+❌ ImportError
+
+Check that the imported function or variable actually exists.
+
+Example:
+
+from plugins.downloader import start_download
+
+Make sure "start_download" exists inside:
+
+plugins/downloader.py
+
+---
+
+⚠️ Important
+
+This bot should only be used to download content that you have permission to access or download.
+
+Do not use it to bypass access controls, copyright restrictions, or website security mechanisms.
+
+---
+
+⭐ Support
+
+If you like this project:
+
+⭐ Star the repository
+🍴 Fork the repository
+🐛 Report bugs
+💡 Suggest improvements
+
+---
 
 📜 License
 
 This project is provided for educational and personal use.
 
-Make sure you have permission to download and redistribute any content processed by the bot.
-
-⭐ Support
-
-If this project helped you, consider giving the repository a ⭐ on GitHub.
-
 ---
 
-Made with ❤️ using Python & Pyrogram
+<p align="center"><b>🚀 Telegram Link Downloader Bot</b>
 
+<br>Made with ❤️ using Python & Pyrogram
 
-If you give me your **actual project file list / `requirements.txt` / `config.py`**, I can make this README match your bot exactly instead of using the generic configuration above.
+</p>
