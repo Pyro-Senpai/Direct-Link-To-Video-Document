@@ -16,13 +16,13 @@ from config import (
     ABOUT_TEXT,
 )
 
-temp_msg = await message.reply("ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ . . .")
+temp_msg = await message.reply("<b>ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ . . .</b>")
     await asyncio.sleep(0.5)
-    await temp_msg.edit_text("?!")
+    await temp_msg.edit_text("<b>?!</b>")
     await asyncio.sleep(0.5)
-    await temp_msg.edit_text("..")
+    await temp_msg.edit_text("<b>..</b>")
     await asyncio.sleep(0.5)
-    await temp_msg.edit_text("#?!")
+    await temp_msg.edit_text("<b>?!</b>")
 
     try:
         await temp_msg.delete()
@@ -295,30 +295,13 @@ async def url_handler(
     # LOADING ANIMATION
     # --------------------------------------------------------
 
-    temp_msg = await message.reply(
-        "ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ . . ."
-    )
-
+    temp_msg = await message.reply("<b>ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ . . .</b>")
     await asyncio.sleep(0.5)
-
-    try:
-        await temp_msg.edit_text("?!")
-    except Exception:
-        pass
-
+    await temp_msg.edit_text("<b>?!</b>")
     await asyncio.sleep(0.5)
-
-    try:
-        await temp_msg.edit_text("..")
-    except Exception:
-        pass
-
+    await temp_msg.edit_text("<b>..</b>")
     await asyncio.sleep(0.5)
-
-    try:
-        await temp_msg.edit_text("#?!")
-    except Exception:
-        pass
+    await temp_msg.edit_text("<b>?!</b>")
 
     # --------------------------------------------------------
     # DELETE LOADING MESSAGE
