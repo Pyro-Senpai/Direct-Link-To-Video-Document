@@ -7,10 +7,13 @@ from pyrogram.types import Message
 
 from config import DOWNLOAD_DIR
 
+
 logger = logging.getLogger(__name__)
 
 
 def user_thumbnail_path(user_id):
+    os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
     return os.path.join(
         DOWNLOAD_DIR,
         f"user_thumb_{user_id}.jpg"
@@ -40,7 +43,9 @@ async def save_user_thumbnail(client, message, user_id):
         return path
 
     except Exception:
-        logger.exception("Failed to save user thumbnail")
+        logger.exception(
+            "Failed to save user thumbnail"
+        )
         return None
 
 
@@ -64,7 +69,9 @@ def delete_user_thumbnail(user_id):
         return True
 
     except Exception:
-        logger.exception("Failed to delete user thumbnail")
+        logger.exception(
+            "Failed to delete user thumbnail"
+        )
         return False
 
 
@@ -111,9 +118,6 @@ def create_video_thumbnail(filepath, output_path=None):
         )
 
         if result.returncode != 0:
-            logger.warning(
-                "5 second thumbnail failed. Trying random frame."
-            )
 
             command = [
                 "ffmpeg",
@@ -121,11 +125,9 @@ def create_video_thumbnail(filepath, output_path=None):
                 "-i",
                 filepath,
                 "-vf",
-                "thumbnail",
+                "thumbnail,scale=320:320:force_original_aspect_ratio=decrease",
                 "-frames:v",
                 "1",
-                "-vf",
-                "scale=320:320:force_original_aspect_ratio=decrease",
                 "-q:v",
                 "3",
                 output_path
@@ -141,7 +143,9 @@ def create_video_thumbnail(filepath, output_path=None):
         if result.returncode != 0:
             logger.error(
                 "Automatic thumbnail creation failed: %s",
-                result.stderr.decode(errors="ignore")[-1000:]
+                result.stderr.decode(
+                    errors="ignore"
+                )[-1000:]
             )
             return None
 
@@ -161,7 +165,8 @@ def create_video_thumbnail(filepath, output_path=None):
 
 
 @Client.on_message(
-    filters.command("setthumb") & filters.private
+    filters.private &
+    filters.command(["setthumb", "set_thumb"])
 )
 async def set_thumbnail_command(
     client: Client,
@@ -170,16 +175,18 @@ async def set_thumbnail_command(
     user_id = message.from_user.id
 
     if not message.reply_to_message:
-        await message.reply_text(
+        return await message.reply_text(
             "❌ **Reply to a photo and use `/setthumb`.**"
         )
-        return
 
     if not message.reply_to_message.photo:
-        await message.reply_text(
+        return await message.reply_text(
             "❌ **Please reply to a photo.**"
         )
-        return
+
+    status = await message.reply_text(
+        "⏳ **Please wait...**"
+    )
 
     path = await save_user_thumbnail(
         client,
@@ -188,19 +195,19 @@ async def set_thumbnail_command(
     )
 
     if not path:
-        await message.reply_text(
+        return await status.edit_text(
             "❌ **Failed to save thumbnail.**"
         )
-        return
 
-    await message.reply_text(
+    await status.edit_text(
         "✅ **Thumbnail set successfully!**\n\n"
-        "This thumbnail will be used for your videos."
+        "Your custom thumbnail will be used for your videos."
     )
 
 
 @Client.on_message(
-    filters.command("viewthumb") & filters.private
+    filters.private &
+    filters.command(["viewthumb", "view_thumb"])
 )
 async def view_thumbnail_command(
     client: Client,
@@ -211,11 +218,10 @@ async def view_thumbnail_command(
     path = get_user_thumbnail(user_id)
 
     if not path:
-        await message.reply_text(
-            "ℹ️ **No custom thumbnail is set.**\n\n"
-            "Use `/setthumb` by replying to a photo."
+        return await message.reply_text(
+            "😔 **You don't have any thumbnail.**\n\n"
+            "Reply to a photo and use `/setthumb`."
         )
-        return
 
     try:
         await message.reply_photo(
@@ -234,7 +240,8 @@ async def view_thumbnail_command(
 
 
 @Client.on_message(
-    filters.command("delthumb") & filters.private
+    filters.private &
+    filters.command(["delthumb", "del_thumb"])
 )
 async def delete_thumbnail_command(
     client: Client,
@@ -245,12 +252,11 @@ async def delete_thumbnail_command(
     deleted = delete_user_thumbnail(user_id)
 
     if not deleted:
-        await message.reply_text(
-            "ℹ️ **You don't have a custom thumbnail.**"
+        return await message.reply_text(
+            "😔 **You don't have any thumbnail.**"
         )
-        return
 
     await message.reply_text(
-        "🗑️ **Custom thumbnail deleted.**\n\n"
+        "❌ **Thumbnail deleted successfully.**\n\n"
         "Your videos will now use automatic thumbnails."
     )
