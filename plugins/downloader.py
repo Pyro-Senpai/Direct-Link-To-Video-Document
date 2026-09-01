@@ -573,14 +573,21 @@ async def get_user_thumbnail(
             user_id
         )
 
-        if thumbnail:
-            if os.path.exists(
-                thumbnail
-            ):
-                return thumbnail
+        if not thumbnail:
+            return None
+
+        if isinstance(thumbnail, str) and os.path.exists(thumbnail):
+            return thumbnail
+            
+        if isinstance(thumbnail, bytes):
+            thumb_path = os.path.join(DOWNLOAD_DIR, f"user_thumb_{user_id}.jpg")
+            with open(thumb_path, "wb") as f:
+                f.write(thumbnail)
+            if os.path.exists(thumb_path):
+                return thumb_path
 
     except Exception:
-        pass
+        logger.exception("Error retrieving user thumbnail.")
 
     return None
 
@@ -917,6 +924,7 @@ async def start_download(
             and os.path.exists(
                 thumbnail_path
             )
+            and "user_thumb_" not in thumbnail_path
         ):
             try:
                 os.remove(
