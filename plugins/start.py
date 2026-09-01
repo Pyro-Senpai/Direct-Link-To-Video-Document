@@ -1,4 +1,5 @@
 import re
+import asyncio
 
 from pyrogram import Client, filters
 from pyrogram.types import (
@@ -15,13 +16,6 @@ from config import (
     ABOUT_TEXT,
 )
 
-temp_msg = await message.reply("ᴡᴀɪᴛ ᴀ sᴇᴄᴏɴᴅ ...")
-        await asyncio.sleep(0.5)
-        await temp_msg.edit_text("?!")
-        await asyncio.sleep(0.5)
-        await temp_msg.edit_text("?!..")
-        await asyncio.sleep(0.5)
-        messages = []
 
 def start_keyboard():
     return InlineKeyboardMarkup(
@@ -71,6 +65,13 @@ async def start_command(
     client: Client,
     message: Message
 ):
+    user = message.from_user
+    
+    formatted_text = START_TEXT.format(
+        first_name=user.first_name or "",
+        last_name=user.last_name or "",
+        mention=user.mention
+    )
 
     keyboard = start_keyboard()
 
@@ -80,7 +81,7 @@ async def start_command(
 
             await message.reply_photo(
                 photo=START_IMAGE,
-                caption=START_TEXT,
+                caption=formatted_text,
                 reply_markup=keyboard
             )
 
@@ -90,7 +91,7 @@ async def start_command(
             pass
 
     await message.reply_text(
-        START_TEXT,
+        formatted_text,
         reply_markup=keyboard
     )
 
@@ -144,11 +145,18 @@ async def back_to_start(
     client: Client,
     callback_query: CallbackQuery
 ):
+    user = callback_query.from_user
+    
+    formatted_text = START_TEXT.format(
+        first_name=user.first_name or "",
+        last_name=user.last_name or "",
+        mention=user.mention
+    )
 
     try:
 
         await callback_query.message.edit_text(
-            START_TEXT,
+            formatted_text,
             reply_markup=start_keyboard()
         )
 
@@ -217,6 +225,20 @@ async def url_handler(
         )
 
         return
+
+    # Integrated Loading Animation based on your snippet
+    temp_msg = await message.reply("Loading")
+    await asyncio.sleep(0.5)
+    await temp_msg.edit_text("Loading.")
+    await asyncio.sleep(0.5)
+    await temp_msg.edit_text("Loading..")
+    await asyncio.sleep(0.5)
+    await temp_msg.edit_text("Loading...")
+
+    try:
+        await temp_msg.delete()
+    except Exception:
+        pass
 
     from plugins.callbacks import (
         show_format_buttons
