@@ -392,7 +392,7 @@ Graph LR
 <hr>🩺 Troubleshooting
 
 <details>
-<summary><b><table></table>❌ IndentationError</b></summary><br>Make sure every function body is correctly indented.
+<summary><b>❌ IndentationError</b></summary><br><table>Make sure every function body is correctly indented.
 
 async def example():
     print("Hello")</table>
