@@ -3,16 +3,18 @@ import re
 from pyrogram import Client, filters
 from pyrogram.types import (
     Message,
+    CallbackQuery,
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
 
-from config import START_IMAGE
+from config import (
+    START_IMAGE,
+    START_TEXT,
+    HELP_TEXT,
+    ABOUT_TEXT,
+)
 
-
-# ============================================================
-# START KEYBOARD
-# ============================================================
 
 def start_keyboard():
     return InlineKeyboardMarkup(
@@ -26,26 +28,33 @@ def start_keyboard():
                     "ℹ️ About",
                     callback_data="about"
                 )
+            ],
+            [
+                InlineKeyboardButton(
+                    "❌ Close",
+                    callback_data="close"
+                )
             ]
         ]
     )
 
 
-# ============================================================
-# START MESSAGE
-# ============================================================
+def info_keyboard():
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    "⬅️ Back",
+                    callback_data="start"
+                ),
+                InlineKeyboardButton(
+                    "❌ Close",
+                    callback_data="close"
+                )
+            ]
+        ]
+    )
 
-START_TEXT = (
-    "👋 **Hello!**\n\n"
-    "🔗 Send me a direct download link "
-    "and I'll download the file for you.\n\n"
-    "📥 Supports **Video** and **Document**."
-)
-
-
-# ============================================================
-# /START
-# ============================================================
 
 @Client.on_message(
     filters.command("start")
@@ -57,10 +66,6 @@ async def start_command(
 ):
 
     keyboard = start_keyboard()
-
-    # --------------------------------------------------------
-    # SEND START IMAGE
-    # --------------------------------------------------------
 
     if START_IMAGE:
 
@@ -75,14 +80,7 @@ async def start_command(
             return
 
         except Exception:
-
-            # If image URL is invalid, fall back
-            # to normal text message.
             pass
-
-    # --------------------------------------------------------
-    # TEXT FALLBACK
-    # --------------------------------------------------------
 
     await message.reply_text(
         START_TEXT,
@@ -90,9 +88,88 @@ async def start_command(
     )
 
 
-# ============================================================
-# URL HANDLER
-# ============================================================
+@Client.on_callback_query(
+    filters.regex(r"^help$")
+)
+async def help_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    try:
+
+        await callback_query.message.edit_text(
+            HELP_TEXT,
+            reply_markup=info_keyboard()
+        )
+
+    except Exception:
+        pass
+
+    await callback_query.answer()
+
+
+@Client.on_callback_query(
+    filters.regex(r"^about$")
+)
+async def about_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    try:
+
+        await callback_query.message.edit_text(
+            ABOUT_TEXT,
+            reply_markup=info_keyboard()
+        )
+
+    except Exception:
+        pass
+
+    await callback_query.answer()
+
+
+@Client.on_callback_query(
+    filters.regex(r"^start$")
+)
+async def back_to_start(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    try:
+
+        await callback_query.message.edit_text(
+            START_TEXT,
+            reply_markup=start_keyboard()
+        )
+
+    except Exception:
+        pass
+
+    await callback_query.answer()
+
+
+@Client.on_callback_query(
+    filters.regex(r"^close$")
+)
+async def close_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    await callback_query.answer(
+        "Closed."
+    )
+
+    try:
+
+        await callback_query.message.delete()
+
+    except Exception:
+        pass
+
 
 @Client.on_message(
     filters.private
@@ -111,10 +188,6 @@ async def url_handler(
 
     url = message.text.strip()
 
-    # --------------------------------------------------------
-    # VALIDATE URL
-    # --------------------------------------------------------
-
     if not re.match(
         r"^https?://",
         url,
@@ -127,15 +200,6 @@ async def url_handler(
 
         return
 
-    # --------------------------------------------------------
-    # VERY LONG URL CHECK
-    # --------------------------------------------------------
-    #
-    # The URL is temporarily placed in callback_data.
-    # Telegram has a callback_data size limit.
-    #
-    # --------------------------------------------------------
-
     if len(
         url.encode("utf-8")
     ) > 150:
@@ -146,10 +210,6 @@ async def url_handler(
         )
 
         return
-
-    # --------------------------------------------------------
-    # SHOW VIDEO / DOCUMENT BUTTONS
-    # --------------------------------------------------------
 
     from plugins.callbacks import (
         show_format_buttons
