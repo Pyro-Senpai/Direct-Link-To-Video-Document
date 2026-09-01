@@ -86,6 +86,14 @@ DEFAULT_CAPTION = os.getenv(
     "Downloaded by @YourBot"
 )
 
+============================================================
+# Start Image
+============================================================
+
+START_IMAGE = os.getenv(
+"START_IMAGE",
+"https://telegra.ph/file/aad055c98c566adfb7dcd-b42f72ff4d1de29e86.jpg"
+)
 
 # ============================================================
 # Create Download Directory
