@@ -41,12 +41,12 @@ async def cancel_command(
     if cancelled:
 
         await message.reply_text(
-            "❌ **Download cancelled.**\n\n"
-            "The temporary file will be cleaned up."
+            "**ᴅᴏᴡɴʟᴏᴀᴅ ᴄᴀɴᴄᴇʟʟᴇᴅ.**\n\n"
+            "ᴛʜᴇ ᴛᴇᴍᴘᴏʀᴀʀʏ ғɪʟᴇ ᴡɪʟʟ ʙᴇ ᴄʟᴇᴀɴᴇᴅ ᴜᴘ."
         )
 
     else:
 
         await message.reply_text(
-            "ℹ️ **No active download found.**"
+            "**ɴᴏ ᴀᴄᴛɪᴠᴇ ᴅᴏᴡɴʟᴏᴀᴅ ғᴏᴜɴᴅ.**"
         )
