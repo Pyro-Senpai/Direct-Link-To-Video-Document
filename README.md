@@ -1,75 +1,210 @@
-<div align="center">⚡ Telegram Link Downloader Bot
+<p align="center">
+  <a href="#!">
+    <img src="YOUR_BANNER_URL" alt="Telegram Link Downloader Bot Banner" width="100%" />
+  </a>
+</p><h1 align="center">🤖 Telegram Link Downloader Bot</h1><p align="center">
+  <b>A fast, modern and secure Telegram link downloader built with Python, Pyrogram and Aiohttp.</b>
+</p><p align="center">
+  <a href="#!">
+    <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white&labelColor=111111" alt="Python">
+  </a>
+  <a href="#!">
+    <img src="https://img.shields.io/badge/Pyrogram-2.x-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white&labelColor=111111" alt="Pyrogram">
+  </a>
+  <a href="#!">
+    <img src="https://img.shields.io/badge/Aiohttp-Async-orange?style=for-the-badge&labelColor=111111" alt="Aiohttp">
+  </a>
+  <a href="#!">
+    <img src="https://img.shields.io/badge/Koyeb-Ready-8B5CF6?style=for-the-badge&logo=koyeb&logoColor=white&labelColor=111111" alt="Koyeb">
+  </a>
+</p><p align="center">
+  <a href="#features">✨ Features</a> •
+  <a href="#installation">⚙️ Installation</a> •
+  <a href="#configuration">🔐 Configuration</a> •
+  <a href="#deployment">🚀 Deployment</a>
+</p><hr>📡 System Overview
 
-<p>A simple and powerful Telegram bot for downloading files from supported URLs and sending them directly to Telegram.</p><p>
-  <img src="https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python">
-  <img src="https://img.shields.io/badge/Pyrogram-2.x-2CA5E0?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Aiohttp-Async-orange?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Koyeb-Ready-purple?style=for-the-badge">
-</p></div><br><div align="center"><table>
-<tr>
-<td align="center">🔗 Simple
+<p align="center">
+  <img src="https://img.shields.io/badge/BOT_STATUS-ONLINE-00E676?style=flat-square&labelColor=111111" alt="Bot Status">
+  <img src="https://img.shields.io/badge/ASYNC-ENABLED-00E5FF?style=flat-square&labelColor=111111" alt="Async">
+  <img src="https://img.shields.io/badge/KOYEB-READY-8B5CF6?style=flat-square&labelColor=111111" alt="Koyeb">
+</p>graph TD
 
-Send a URL and choose the required format.
+    User[👤 Telegram User]
 
-</td>
-<td align="center">⚡ Fast
+    Bot[🤖 Link Downloader Bot]
 
-Built with asynchronous Python.
+    URL[🔗 URL Handler]
 
-</td>
-<td align="center">🔒 Secure
+    Format{📦 Choose Format}
 
-User-specific callback requests.
+    Video[🎬 Video]
 
-</td>
-</tr>
-</table></div>---
+    Document[📄 Document]
 
-✨ Features
+    Downloader[⚡ Download Engine]
+
+    Telegram[💬 Telegram]
+
+    Cancel[❌ Cancel Download]
+
+    Health[🌐 Aiohttp Health Server]
+
+    Koyeb[☁️ Koyeb]
+
+    User -->|Send URL| Bot
+    Bot --> URL
+    URL --> Format
+
+    Format -->|Video| Video
+    Format -->|Document| Document
+
+    Video --> Downloader
+    Document --> Downloader
+
+    Downloader -->|Upload| Telegram
+    Telegram -->|Result| User
+
+    User -->|Cancel| Cancel
+    Cancel --> Downloader
+
+    Koyeb --> Health
+    Health --> Koyeb
+
+    style User fill:#111827,stroke:#3b82f6,color:#fff
+    style Bot fill:#1e293b,stroke:#38bdf8,color:#fff
+    style URL fill:#172554,stroke:#60a5fa,color:#fff
+    style Format fill:#422006,stroke:#f59e0b,color:#fff
+    style Video fill:#14532d,stroke:#22c55e,color:#fff
+    style Document fill:#164e63,stroke:#06b6d4,color:#fff
+    style Downloader fill:#312e81,stroke:#818cf8,color:#fff
+    style Telegram fill:#0c4a6e,stroke:#0ea5e9,color:#fff
+    style Cancel fill:#7f1d1d,stroke:#ef4444,color:#fff
+    style Health fill:#3b0764,stroke:#a855f7,color:#fff
+    style Koyeb fill:#111827,stroke:#8b5cf6,color:#fff
+
+<hr>⚡ Features
 
 <div align="center"><table>
 <tr>
-<td>🔗 Direct URL Downloads</td>
-<td>🎬 Video Support</td>
+<td align="center" width="33%">🔗 URL Downloader
+
+Send a supported direct URL and start the download process.
+
+</td><td align="center" width="33%">🎬 Video Mode
+
+Send downloaded content as a Telegram video.
+
+</td><td align="center" width="33%">📄 Document Mode
+
+Send downloaded content as a Telegram document.
+
+</td>
+</tr><tr>
+<td align="center">🆔 Secure Request ID
+
+Full URLs are not stored inside callback data.
+
+</td><td align="center">🔒 User Verification
+
+Download buttons are restricted to their creator.
+
+</td><td align="center">❌ Cancel System
+
+Users can cancel an active download.
+
+</td>
+</tr><tr>
+<td align="center">⚡ Async Engine
+
+Built around Python's asynchronous architecture.
+
+</td><td align="center">🌐 Health Server
+
+Aiohttp server for cloud health checks.
+
+</td><td align="center">🔄 FloodWait Handling
+
+Automatically waits when Telegram applies FloodWait.
+
+</td>
 </tr>
+</table></div><hr>🔄 Download Flow
+
+sequenceDiagram
+
+    participant U as 👤 User
+    participant B as 🤖 Bot
+    participant D as ⚡ Downloader
+    participant T as 💬 Telegram
+
+    U->>B: Send URL
+    B->>B: Create temporary request ID
+    B-->>U: Show Video / Document buttons
+
+    U->>B: Select format
+    B->>B: Verify User ID
+    B->>D: Start download
+
+    D->>D: Download file
+    D->>T: Upload file
+    T-->>U: Send downloaded file
+
+<hr>🔐 Secure Callback System
+
+The bot avoids placing the complete URL inside "callback_data".
+
+Instead, it generates a temporary identifier.
+
+<div align="center"><table>
 <tr>
-<td>📄 Document Support</td>
-<td>❌ Cancel Downloads</td>
+<th>Stage</th>
+<th>Example</th>
+</tr><tr>
+<td>🔗 Original URL</td>
+<td><code>https://example.com/video.mp4</code></td>
+</tr><tr>
+<td>🆔 Request ID</td>
+<td><code>a91f42c8d301</code></td>
+</tr><tr>
+<td>🎬 Callback</td>
+<td><code>video:a91f42c8d301</code></td>
 </tr>
-<tr>
-<td>🆔 Temporary Request IDs</td>
-<td>🔒 User Verification</td>
-</tr>
-<tr>
-<td>⚡ Async Processing</td>
-<td>🌐 Health Server</td>
-</tr>
-<tr>
-<td>☁️ Koyeb Ready</td>
-<td>🐳 Docker Support</td>
-</tr>
-</table></div>---
+</table></div>The request internally contains:
 
-🔄 How It Works
+Request ID
+    ↓
+Telegram User ID
+    ↓
+Download URL
 
-<div align="center">User
-  ↓
-Send URL
-  ↓
-Bot Creates Request
-  ↓
-Choose Format
-  ↓
-Download
-  ↓
-Send File to Telegram
+Before starting a download, the bot checks whether the callback belongs to the same Telegram user who created the request.
 
-</div>---
+<hr>🎛️ Download Controls
 
-📂 Project Structure
+<div align="center"><table>
+<tr><td align="center" width="50%">🎬 VIDEO
 
-<div>
-```bash
+🎬 Video
+
+Downloads and sends the file using the selected video mode.
+
+</td><td align="center" width="50%">📄 DOCUMENT
+
+📄 Document
+
+Downloads and sends the file as a Telegram document.
+
+</td></tr><tr><td colspan="2" align="center">❌ CANCEL
+
+❌ Cancel
+
+Stops an active download when supported by the downloader.
+
+</td></tr>
+</table></div><hr>📂 Project Structure
+
+.
 ├── bot.py
 ├── config.py
 ├── requirements.txt
@@ -81,192 +216,141 @@ Send File to Telegram
     ├── callbacks.py
     ├── downloader.py
     └── cancel.py
-```
-</div>
 
-🧩 Architecture
+<hr>🧩 Module Architecture
 
-<div align="center"><table>
-<tr>
-<th>File</th>
-<th>Purpose</th>
-</tr>
-<tr>
+<div align="center"><table><tr>
+<th>Module</th>
+<th>Responsibility</th>
+</tr><tr>
 <td><code>bot.py</code></td>
-<td>Starts the bot and health server</td>
-</tr>
-<tr>
+<td>Starts Pyrogram and the Koyeb health server.</td>
+</tr><tr>
 <td><code>config.py</code></td>
-<td>Environment configuration</td>
-</tr>
-<tr>
-<td><code>start.py</code></td>
-<td>Handles start command and URLs</td>
-</tr>
-<tr>
-<td><code>callbacks.py</code></td>
-<td>Handles Video / Document buttons</td>
-</tr>
-<tr>
-<td><code>downloader.py</code></td>
-<td>Download engine</td>
-</tr>
-<tr>
-<td><code>cancel.py</code></td>
-<td>Handles download cancellation</td>
-</tr>
-</table></div>---
-
-🔐 Callback Security
-
-Instead of putting the complete URL inside Telegram's callback data, the bot generates a short temporary ID.
+<td>Stores Telegram configuration values.</td>
+</tr><tr>
+<td><code>plugins/start.py</code></td>
+<td>Handles the start command and URL input.</td>
+</tr><tr>
+<td><code>plugins/callbacks.py</code></td>
+<td>Handles Video, Document and Cancel callbacks.</td>
+</tr><tr>
+<td><code>plugins/downloader.py</code></td>
+<td>Contains the download and upload logic.</td>
+</tr><tr>
+<td><code>plugins/cancel.py</code></td>
+<td>Handles cancellation-related functionality.</td>
+</tr></table></div><hr>🛠 Requirements
 
 <div align="center"><table>
 <tr>
-<td>Original URL
-
-"https://example.com/video.mp4"
-
-</td>
-<td>→</td>
-<td>Temporary ID
-
-"a91f42c8d301"
-
-</td>
-<td>→</td>
-<td>Callback
-
-"video:a91f42c8d301"
-
-</td>
+<td>🐍 Python</td>
+<td>3.10+</td>
+</tr><tr>
+<td>🤖 Telegram Bot</td>
+<td>Bot Token</td>
+</tr><tr>
+<td>🔑 Telegram API</td>
+<td>API ID + API Hash</td>
+</tr><tr>
+<td>☁️ Cloud</td>
+<td>Optional — Koyeb / VPS / Docker</td>
 </tr>
-</table></div>The bot stores:
-
-Short ID
-   ↓
-User ID
-   ↓
-Download URL
-
-Before downloading, the bot verifies that the button belongs to the correct user.
-
----
-
-🎛️ Download Options
-
-<div align="center"><table>
-<tr>
-<td align="center">🎬 Video
-
-Send the downloaded file as a Telegram video.
-
-</td>
-<td align="center">📄 Document
-
-Send the downloaded file as a Telegram document.
-
-</td>
-</tr>
-</table><br>🎬 Video| 📄 Document
-Video output| File output
-Telegram video| Telegram document
-
-</div>---
-
-⚙️ Requirements
-
-<div align="center"><table>
-<tr>
-<td>Python 3.10+</td>
-<td>Telegram Bot</td>
-</tr>
-<tr>
-<td>API ID</td>
-<td>API Hash</td>
-</tr>
-</table></div>Main packages:
+</table></div>Python Packages
 
 Pyrogram
-Pyrofork
 Pyromod
 Aiohttp
 Aiofiles
 TgCrypto
 
----
+<hr>🔐 Configuration
 
-🔑 Configuration
-
-Set these environment variables:
+Set the following environment variables:
 
 API_ID=YOUR_API_ID
 API_HASH=YOUR_API_HASH
 BOT_TOKEN=YOUR_BOT_TOKEN
 
-<div align="center">«⚠️ Never publish your "BOT_TOKEN" or "API_HASH".»
+<div align="center"><table>
+<tr>
+<th>Variable</th>
+<th>Purpose</th>
+</tr><tr>
+<td><code>API_ID</code></td>
+<td>Telegram API identifier.</td>
+</tr><tr>
+<td><code>API_HASH</code></td>
+<td>Telegram API hash.</td>
+</tr><tr>
+<td><code>BOT_TOKEN</code></td>
+<td>Telegram bot authentication token.</td>
+</tr>
+</table></div>«⚠️ Never upload your API credentials or bot token to a public repository.»
 
-</div>---
+<hr>⚙️ Installation
 
-💻 Local Installation
-
-1. Clone
+1️⃣ Clone Repository
 
 git clone YOUR_REPOSITORY_URL
-cd LINK-DOWNLOADER
+cd YOUR_PROJECT_FOLDER
 
-2. Install Dependencies
+2️⃣ Install Dependencies
 
 pip install -r requirements.txt
 
-3. Start Bot
+3️⃣ Configure Environment
 
-python bot.py
-
----
-
-☁️ Koyeb Deployment
-
-<div align="center"><table>
-<tr>
-<td align="center">1️⃣ Repository
-
-Connect your GitHub repository to Koyeb.
-
-</td>
-<td align="center">2️⃣ Variables
-
-Add your Telegram credentials.
-
-</td>
-<td align="center">3️⃣ Deploy
-
-Deploy the service and wait for health checks.
-
-</td>
-</tr>
-</table></div>Environment Variables
+Set:
 
 API_ID
 API_HASH
 BOT_TOKEN
 
-Start Command
+4️⃣ Start Bot
 
 python bot.py
 
-Health Endpoints
+<hr>🚀 Deployment
+
+☁️ Koyeb
+
+The project contains a built-in Aiohttp health server.
+
+0.0.0.0:$PORT
+
+Default fallback:
+
+8080
+
+Health endpoints:
 
 /
  /health
 
-Both endpoints return:
+Both return:
 
 OK
 
----
+<div align="center"><table>
+<tr><td align="center">1️⃣ Repository
 
-🐳 Docker
+Connect your GitHub repository.
+
+</td><td align="center">2️⃣ Environment
+
+Add your Telegram credentials.
+
+</td><td align="center">3️⃣ Deploy
+
+Start the service and wait for health checks.
+
+</td></tr>
+</table></div>Start Command
+
+python bot.py
+
+<hr>🐳 Docker
 
 Build
 
@@ -276,149 +360,115 @@ Run
 
 docker run telegram-link-downloader
 
----
+<hr>🌐 Health Monitoring
 
-🩺 Health Server
+graph LR
 
-The bot includes an "aiohttp" server for cloud deployment health checks.
+    K[☁️ Koyeb]
+    H[🌐 Aiohttp]
+    P[8080 / $PORT]
+    OK[✅ HTTP 200 OK]
 
-<div align="center"><table>
-<tr>
-<th>Endpoint</th>
-<th>Response</th>
-</tr>
-<tr>
-<td><code>/</code></td>
-<td>HTTP 200 — OK</td>
-</tr>
-<tr>
-<td><code>/health</code></td>
-<td>HTTP 200 — OK</td>
-</tr>
-</table></div>The server uses the "PORT" environment variable and falls back to "8080".
+    K --> H
+    H --> P
+    P --> OK
 
----
+    style K fill:#312e81,stroke:#8b5cf6,color:#fff
+    style H fill:#164e63,stroke:#06b6d4,color:#fff
+    style P fill:#422006,stroke:#f59e0b,color:#fff
+    style OK fill:#14532d,stroke:#22c55e,color:#fff
 
-🛠️ Troubleshooting
+<hr>🩺 Troubleshooting
 
-"IndentationError"
-
-Check the indentation inside functions, loops and conditions.
-
-Correct:
+<details>
+<summary><b>❌ IndentationError</b></summary><br>Make sure every function body is correctly indented.
 
 async def example():
     print("Hello")
 
-"ImportError"
+</details><details>
+<summary><b>❌ ImportError</b></summary><br>Check that the imported function actually exists in the target plugin.
 
-Verify that the required function exists in the referenced plugin.
+Example:
 
 from plugins.downloader import start_download
 
-"Client is already connected"
+Make sure "start_download" is defined inside:
 
-This happens when the same Pyrogram client is started more than once.
+plugins/downloader.py
 
-Make sure you do not repeatedly call:
+</details><details>
+<summary><b>❌ Client is already connected</b></summary><br>This usually happens when the same Pyrogram client is started more than once.
+
+Avoid repeatedly calling:
 
 await bot.start()
 
 on an already-connected client.
 
-Koyeb Health Check Failed
+</details><details>
+<summary><b>❌ Koyeb Health Check Failed</b></summary><br>Check the following:
 
-Check:
+- Application listens on "0.0.0.0"
+- "$PORT" is used
+- "/" returns HTTP "200"
+- Environment variables are configured
+- Dependencies install successfully
+- No Python syntax errors exist
 
-<div align="center"><table>
-<tr>
-<td>✓</td>
-<td>Application listens on <code>0.0.0.0</code></td>
-</tr>
-<tr>
-<td>✓</td>
-<td><code>PORT</code> is configured correctly</td>
-</tr>
-<tr>
-<td>✓</td>
-<td>Health endpoint returns HTTP 200</td>
-</tr>
-<tr>
-<td>✓</td>
-<td>Environment variables are present</td>
-</tr>
-<tr>
-<td>✓</td>
-<td>No Python syntax/import errors</td>
-</tr>
-</table></div>---
+</details><hr>🔒 Security Checklist
 
-🛡️ Security
-
-<div align="center"><table>
-<tr>
-<td>🔐</td>
-<td><b>Keep credentials private</b></td>
-</tr>
-<tr>
-<td>🚫</td>
-<td>Never commit secrets to GitHub</td>
-</tr>
-<tr>
+<div align="center"><table><tr>
 <td>🔑</td>
-<td>Use environment variables</td>
-</tr>
-<tr>
+<td>Keep <code>BOT_TOKEN</code> private.</td>
+</tr><tr>
+<td>🛡️</td>
+<td>Keep <code>API_HASH</code> private.</td>
+</tr><tr>
+<td>🚫</td>
+<td>Never commit secrets to GitHub.</td>
+</tr><tr>
 <td>♻️</td>
-<td>Regenerate exposed bot tokens</td>
-</tr>
-</table></div>---
+<td>Regenerate an exposed bot token immediately.</td>
+</tr><tr>
+<td>👤</td>
+<td>Validate the callback user before starting downloads.</td>
+</tr></table></div><hr>🧭 Roadmap
 
-🚧 Roadmap
-
-<div align="center"><table>
-<tr>
-<td>✅ Core Downloader</td>
-<td>✅ Video / Document</td>
-</tr>
-<tr>
-<td>✅ Cancel System</td>
+<div align="center"><table><tr>
+<td>✅ URL Handler</td>
+<td>✅ Video Mode</td>
+<td>✅ Document Mode</td>
+</tr><tr>
 <td>✅ Callback Security</td>
-</tr>
-<tr>
-<td>✅ Koyeb Support</td>
+<td>✅ Cancel Button</td>
+<td>✅ Koyeb Health Server</td>
+</tr><tr>
 <td>⬜ Download Progress</td>
-</tr>
-<tr>
-<td>⬜ Download Queue</td>
+<td>⬜ Queue System</td>
 <td>⬜ Download History</td>
-</tr>
-<tr>
-<td>⬜ Admin Panel</td>
+</tr><tr>
+<td>⬜ Admin Controls</td>
 <td>⬜ Statistics</td>
-</tr>
-</table></div>---
+<td>⬜ Database Support</td>
+</tr></table></div><hr>⚠️ Disclaimer
 
-⚠️ Disclaimer
+<div align="center">This project is intended for educational and legitimate purposes.
 
-This project is intended for educational and legitimate use.
+Only download files and content that you are authorized to access.
+Please respect copyright laws and the terms of service of the services you use.
 
-Only download content that you are authorized to access. Respect copyright laws and the terms of service of the websites and services you use.
+</div><hr>❤️ Credits
 
----
+<p align="center"><b>Built with Python & Pyrogram</b>
 
-📜 License
+<br><br>
 
-This project is provided for educational and personal use.
+⚡ Fast • 🔒 Secure • 🧩 Modular • ☁️ Cloud Ready
 
-See the repository license for the applicable terms.
+<br><br>
 
----
+⭐ <b>If you find this project useful, consider starring the repository.</b>
 
-<div align="center">⚡ LINK-DROP
-
-Built with Python • Pyrogram • Aiohttp
-
-<br>⭐ Star the repository if you find it useful.
-
-</div>
+</p><div align="center"><img src="https://img.shields.io/badge/Made%20With-❤️-red?style=for-the-badge&labelColor=111111">
+<img src="https://img.shields.io/badge/Open%20Source-✓-success?style=for-the-badge&labelColor=111111"></div>
