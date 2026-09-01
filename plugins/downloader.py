@@ -76,7 +76,7 @@ def format_keyboard(
             [
                 InlineKeyboardButton(
                     "❌ Cancel",
-                    callback_data="cancel_download"
+                    callback_data=f"format_cancel:{short_id}"
                 )
             ]
         ]
@@ -190,6 +190,78 @@ async def format_callback(
         url=url,
         mode=mode
     )
+
+
+@Client.on_callback_query(
+    filters.regex(
+        r"^format_cancel:"
+    )
+)
+async def format_cancel_callback(
+    client: Client,
+    callback_query: CallbackQuery
+):
+
+    user_id = callback_query.from_user.id
+
+    try:
+
+        _, short_id = callback_query.data.split(
+            ":",
+            1
+        )
+
+    except ValueError:
+
+        await callback_query.answer(
+            "Invalid request.",
+            show_alert=True
+        )
+
+        return
+
+    request = get_download_request(
+        short_id
+    )
+
+    if not request:
+
+        await callback_query.answer(
+            "Request expired.",
+            show_alert=True
+        )
+
+        return
+
+    if request["user_id"] != user_id:
+
+        await callback_query.answer(
+            "This button belongs to another user.",
+            show_alert=True
+        )
+
+        return
+
+    delete_download_request(
+        short_id
+    )
+
+    await callback_query.answer(
+        "❌ Cancelled"
+    )
+
+    try:
+
+        await callback_query.message.edit_text(
+            "❌ **Download cancelled.**"
+        )
+
+    except Exception as error:
+
+        logger.warning(
+            "Format cancel failed: %s",
+            error
+        )
 
 
 @Client.on_callback_query(
@@ -444,4 +516,4 @@ async def back_start_callback(
         logger.warning(
             "Failed to go back: %s",
             error
-        )
+)
