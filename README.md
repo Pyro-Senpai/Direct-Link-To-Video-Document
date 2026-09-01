@@ -1,36 +1,72 @@
-# Telegram Link Downloader Bot
+<div align="center">⚡ Telegram Link Downloader Bot
 
-A simple and powerful Telegram bot that downloads files from supported direct links and sends them back to users through Telegram.
+<p>A simple and powerful Telegram bot for downloading files from supported URLs and sending them directly to Telegram.</p><p>
+  <img src="https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python">
+  <img src="https://img.shields.io/badge/Pyrogram-2.x-2CA5E0?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Aiohttp-Async-orange?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Koyeb-Ready-purple?style=for-the-badge">
+</p></div><br><div align="center"><table>
+<tr>
+<td align="center">🔗 Simple
 
-Built with Python, Pyrogram and Aiohttp, with support for Koyeb deployment.
+Send a URL and choose the required format.
 
-Features
+</td>
+<td align="center">⚡ Fast
 
-- 🔗 Download files from direct URLs
-- 🎬 Send downloads as Video
-- 📄 Send downloads as Document
-- ❌ Cancel active downloads
-- 🔒 User-specific download requests
-- 🆔 Temporary callback IDs
-- ⚡ Asynchronous processing
-- 🌐 Koyeb health-check server
-- 🐳 Docker support
-- 🔄 FloodWait handling
-- 🧩 Modular plugin structure
+Built with asynchronous Python.
 
-How It Works
+</td>
+<td align="center">🔒 Secure
 
-User sends URL
-      ↓
-Bot receives URL
-      ↓
-Choose Video / Document
-      ↓
-Download starts
-      ↓
-File is sent to Telegram
+User-specific callback requests.
 
-Project Structure
+</td>
+</tr>
+</table></div>---
+
+✨ Features
+
+<div align="center"><table>
+<tr>
+<td>🔗 Direct URL Downloads</td>
+<td>🎬 Video Support</td>
+</tr>
+<tr>
+<td>📄 Document Support</td>
+<td>❌ Cancel Downloads</td>
+</tr>
+<tr>
+<td>🆔 Temporary Request IDs</td>
+<td>🔒 User Verification</td>
+</tr>
+<tr>
+<td>⚡ Async Processing</td>
+<td>🌐 Health Server</td>
+</tr>
+<tr>
+<td>☁️ Koyeb Ready</td>
+<td>🐳 Docker Support</td>
+</tr>
+</table></div>---
+
+🔄 How It Works
+
+<div align="center">User
+  ↓
+Send URL
+  ↓
+Bot Creates Request
+  ↓
+Choose Format
+  ↓
+Download
+  ↓
+Send File to Telegram
+
+</div>---
+
+📂 Project Structure
 
 .
 ├── bot.py
@@ -45,14 +81,110 @@ Project Structure
     ├── downloader.py
     └── cancel.py
 
-Requirements
+---
 
-- Python 3.10+
-- Telegram Bot Token
-- Telegram API ID
-- Telegram API Hash
+🧩 Architecture
 
-Main Python packages:
+<div align="center"><table>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+<tr>
+<td><code>bot.py</code></td>
+<td>Starts the bot and health server</td>
+</tr>
+<tr>
+<td><code>config.py</code></td>
+<td>Environment configuration</td>
+</tr>
+<tr>
+<td><code>start.py</code></td>
+<td>Handles start command and URLs</td>
+</tr>
+<tr>
+<td><code>callbacks.py</code></td>
+<td>Handles Video / Document buttons</td>
+</tr>
+<tr>
+<td><code>downloader.py</code></td>
+<td>Download engine</td>
+</tr>
+<tr>
+<td><code>cancel.py</code></td>
+<td>Handles download cancellation</td>
+</tr>
+</table></div>---
+
+🔐 Callback Security
+
+Instead of putting the complete URL inside Telegram's callback data, the bot generates a short temporary ID.
+
+<div align="center"><table>
+<tr>
+<td>Original URL
+
+"https://example.com/video.mp4"
+
+</td>
+<td>→</td>
+<td>Temporary ID
+
+"a91f42c8d301"
+
+</td>
+<td>→</td>
+<td>Callback
+
+"video:a91f42c8d301"
+
+</td>
+</tr>
+</table></div>The bot stores:
+
+Short ID
+   ↓
+User ID
+   ↓
+Download URL
+
+Before downloading, the bot verifies that the button belongs to the correct user.
+
+---
+
+🎛️ Download Options
+
+<div align="center"><table>
+<tr>
+<td align="center">🎬 Video
+
+Send the downloaded file as a Telegram video.
+
+</td>
+<td align="center">📄 Document
+
+Send the downloaded file as a Telegram document.
+
+</td>
+</tr>
+</table><br>🎬 Video| 📄 Document
+Video output| File output
+Telegram video| Telegram document
+
+</div>---
+
+⚙️ Requirements
+
+<div align="center"><table>
+<tr>
+<td>Python 3.10+</td>
+<td>Telegram Bot</td>
+</tr>
+<tr>
+<td>API ID</td>
+<td>API Hash</td>
+</tr>
+</table></div>Main packages:
 
 Pyrogram
 Pyrofork
@@ -61,48 +193,68 @@ Aiohttp
 Aiofiles
 TgCrypto
 
-Configuration
+---
 
-Set the following environment variables:
+🔑 Configuration
+
+Set these environment variables:
 
 API_ID=YOUR_API_ID
 API_HASH=YOUR_API_HASH
 BOT_TOKEN=YOUR_BOT_TOKEN
 
-Do not publish your "BOT_TOKEN" or "API_HASH".
+<div align="center">«⚠️ Never publish your "BOT_TOKEN" or "API_HASH".»
 
-Local Installation
+</div>---
 
-Clone the repository:
+💻 Local Installation
+
+1. Clone
 
 git clone YOUR_REPOSITORY_URL
 cd LINK-DOWNLOADER
 
-Install dependencies:
+2. Install Dependencies
 
 pip install -r requirements.txt
 
-Start the bot:
+3. Start Bot
 
 python bot.py
 
-Koyeb Deployment
+---
 
-This bot includes an Aiohttp health server for cloud platforms such as Koyeb.
+☁️ Koyeb Deployment
 
-Set these environment variables in Koyeb:
+<div align="center"><table>
+<tr>
+<td align="center">1️⃣ Repository
+
+Connect your GitHub repository to Koyeb.
+
+</td>
+<td align="center">2️⃣ Variables
+
+Add your Telegram credentials.
+
+</td>
+<td align="center">3️⃣ Deploy
+
+Deploy the service and wait for health checks.
+
+</td>
+</tr>
+</table></div>Environment Variables
 
 API_ID
 API_HASH
 BOT_TOKEN
 
-Start command:
+Start Command
 
 python bot.py
 
-The health server uses the "PORT" environment variable and falls back to port "8080".
-
-Health endpoints:
+Health Endpoints
 
 /
  /health
@@ -111,117 +263,161 @@ Both endpoints return:
 
 OK
 
-Docker
+---
 
-Build the image:
+🐳 Docker
+
+Build
 
 docker build -t telegram-link-downloader .
 
-Run:
+Run
 
 docker run telegram-link-downloader
 
-Callback Security
+---
 
-The bot does not place the complete URL inside Telegram callback data.
+🩺 Health Server
 
-Instead, it generates a temporary ID:
+The bot includes an "aiohttp" server for cloud deployment health checks.
 
-video:a91f42c8d301
+<div align="center"><table>
+<tr>
+<th>Endpoint</th>
+<th>Response</th>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>HTTP 200 — OK</td>
+</tr>
+<tr>
+<td><code>/health</code></td>
+<td>HTTP 200 — OK</td>
+</tr>
+</table></div>The server uses the "PORT" environment variable and falls back to "8080".
 
-The bot stores the relationship between:
+---
 
-Short ID
-   ↓
-User ID
-   ↓
-Download URL
+🛠️ Troubleshooting
 
-Before starting a download, the bot checks that the button belongs to the user who created the request.
+"IndentationError"
 
-Error Handling
+Check the indentation inside functions, loops and conditions.
 
-The bot handles Telegram "FloodWait" errors by waiting before retrying.
-
-Unexpected startup errors are logged so they can be diagnosed from the deployment logs.
-
-If the same Pyrogram client is started multiple times, you may see:
-
-ConnectionError: Client is already connected
-
-Make sure "bot.start()" is not being called repeatedly on an already-connected client.
-
-Troubleshooting
-
-IndentationError
-
-Check the indentation of functions, loops and conditional blocks.
-
-Example:
+Correct:
 
 async def example():
     print("Hello")
 
-ImportError
+"ImportError"
 
-Make sure the imported function exists in the referenced plugin.
-
-Example:
+Verify that the required function exists in the referenced plugin.
 
 from plugins.downloader import start_download
 
-Verify:
+"Client is already connected"
 
-plugins/downloader.py
+This happens when the same Pyrogram client is started more than once.
 
-contains "start_download".
+Make sure you do not repeatedly call:
+
+await bot.start()
+
+on an already-connected client.
 
 Koyeb Health Check Failed
 
 Check:
 
-1. The application listens on "0.0.0.0".
-2. The "PORT" environment variable is used.
-3. "/" returns HTTP 200.
-4. All required environment variables are configured.
-5. "requirements.txt" installs successfully.
-6. There are no Python syntax or import errors.
+<div align="center"><table>
+<tr>
+<td>✓</td>
+<td>Application listens on <code>0.0.0.0</code></td>
+</tr>
+<tr>
+<td>✓</td>
+<td><code>PORT</code> is configured correctly</td>
+</tr>
+<tr>
+<td>✓</td>
+<td>Health endpoint returns HTTP 200</td>
+</tr>
+<tr>
+<td>✓</td>
+<td>Environment variables are present</td>
+</tr>
+<tr>
+<td>✓</td>
+<td>No Python syntax/import errors</td>
+</tr>
+</table></div>---
 
-Security
+🛡️ Security
 
-Never commit sensitive credentials to GitHub.
+<div align="center"><table>
+<tr>
+<td>🔐</td>
+<td><b>Keep credentials private</b></td>
+</tr>
+<tr>
+<td>🚫</td>
+<td>Never commit secrets to GitHub</td>
+</tr>
+<tr>
+<td>🔑</td>
+<td>Use environment variables</td>
+</tr>
+<tr>
+<td>♻️</td>
+<td>Regenerate exposed bot tokens</td>
+</tr>
+</table></div>---
 
-Use environment variables for:
+🚧 Roadmap
 
-API_ID
-API_HASH
-BOT_TOKEN
+<div align="center"><table>
+<tr>
+<td>✅ Core Downloader</td>
+<td>✅ Video / Document</td>
+</tr>
+<tr>
+<td>✅ Cancel System</td>
+<td>✅ Callback Security</td>
+</tr>
+<tr>
+<td>✅ Koyeb Support</td>
+<td>⬜ Download Progress</td>
+</tr>
+<tr>
+<td>⬜ Download Queue</td>
+<td>⬜ Download History</td>
+</tr>
+<tr>
+<td>⬜ Admin Panel</td>
+<td>⬜ Statistics</td>
+</tr>
+</table></div>---
 
-If a bot token is accidentally exposed, regenerate it immediately through BotFather.
-
-Future Plans
-
-- Download progress
-- Download queue
-- Download history
-- Admin controls
-- User settings
-- Statistics
-- Database support
-- Improved error messages
-
-Disclaimer
+⚠️ Disclaimer
 
 This project is intended for educational and legitimate use.
 
-Only download content that you have permission to access and download. Respect copyright laws and the terms of service of the websites and services you use.
-
-License
-
-This project is provided for educational and personal use.
+Only download content that you are authorized to access. Respect copyright laws and the terms of service of the websites and services you use.
 
 ---
 
-Made with ❤️ using Python & Pyrogram
+📜 License
 
-⭐ If you find this project useful, consider giving the repository a star.
+This project is provided for educational and personal use.
+
+See the repository license for the applicable terms.
+
+---
+
+<div align="center">⚡ LINK-DROP
+
+Built with Python • Pyrogram • Aiohttp
+
+<br>⭐ Star the repository if you find it useful.
+
+</div>
