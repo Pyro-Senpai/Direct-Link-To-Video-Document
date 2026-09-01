@@ -21,17 +21,17 @@ def start_keyboard():
         [
             [
                 InlineKeyboardButton(
-                    "❓ Help",
+                    "Hᴇʟᴘ",
                     callback_data="help"
                 ),
                 InlineKeyboardButton(
-                    "ℹ️ About",
+                    "Aʙᴏᴜᴛ",
                     callback_data="about"
                 )
             ],
             [
                 InlineKeyboardButton(
-                    "❌ Close",
+                    "Cʟᴏsᴇ",
                     callback_data="close"
                 )
             ]
@@ -43,11 +43,11 @@ def info_keyboard():
         [
             [
                 InlineKeyboardButton(
-                    "⬅️ Back",
+                    "Bᴀᴄᴋ",
                     callback_data="start"
                 ),
                 InlineKeyboardButton(
-                    "❌ Close",
+                    "Cʟᴏsᴇ",
                     callback_data="close"
                 )
             ]
@@ -208,7 +208,7 @@ async def url_handler(
         re.IGNORECASE
     ):
         await message.reply_text(
-            "❌ Please send a valid HTTP/HTTPS URL."
+            "Pʟᴇᴀsᴇ sᴇɴᴅ ᴀ ᴠᴀʟɪᴅ ʜᴛᴛᴘ/ʜᴛᴛᴘs ᴜʀʟ."
         )
         return
 
@@ -216,8 +216,8 @@ async def url_handler(
         url.encode("utf-8")
     ) > 500:
         await message.reply_text(
-            "❌ This URL is too long.\n\n"
-            "Please send a shorter direct download URL."
+            "Tʜɪs ᴜʀʟ ɪs ᴛᴏᴏ ʟᴏɴɢ.\n"
+            "Pʟᴇᴀsᴇ sᴇɴᴅ ᴀ sʜᴏʀᴛᴇʀ ᴅɪʀᴇᴄᴛ ᴅᴏᴡɴʟᴏᴀᴅ ᴜʀʟ."
         )
         return
 
